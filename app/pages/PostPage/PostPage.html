@@ -1,0 +1,130 @@
+<ion-navbar *navbar hidebackbutton class="show-navbar">
+</ion-navbar>
+
+<ion-content class="has-header components-demo cards-bg social-cards postpage">
+    <div *ngIf="!canPost">
+        <ion-list>
+            <ion-item class="item item-text-wrap">
+                <h2>In order to post, you need to invite at least one of your friend</h2> 
+                <button (click)="sendInvitations()" full> Invite Friends </button>
+            </ion-item>
+        </ion-list>
+    </div>
+
+    <div [hidden]="!canPost">
+
+        <div [hidden]="state!='NoPreview'">
+            <ion-list>
+                <ion-list-header>
+                    URL
+                </ion-list-header>
+                <ion-item>
+                    <ion-label floating>Url</ion-label>
+                    <ion-input type="text" [(ngModel)]="url" required></ion-input>
+                </ion-item>
+                <ion-item>
+                    <button (click)="loadArticle('url')" block> Fetch </button>
+                </ion-item>
+            </ion-list>
+            <!-- Look for better solution than using a spacer -->
+            <div class="spacer" style="width: auto; height: 100px;"></div>
+            <ion-list>
+                <ion-list-header>
+                    FEEDS
+                </ion-list-header>
+                <ion-item>
+                    <ion-label>Feed Language</ion-label>
+                    <ion-select [(ngModel)]="feedStream">
+                        <ion-option value="english">English</ion-option>
+                        <ion-option value="hindi">Hindi</ion-option>
+                        <ion-option value="marathi">Marathi</ion-option>
+                        <ion-option value="telugu">Telugu</ion-option>
+                    </ion-select>
+                </ion-item>
+                <ion-item>
+                    <button [disabled]="state=='Loading'" (click)="loadArticle('feeds')" block> Fetch </button>
+                </ion-item>
+            </ion-list>
+        </div>
+        <!-- TODO: Replace with Splashscreen -->
+        <div [hidden]="state!='Loading'">
+            <div class="spacer" style="width: auto; height: 150px;"></div>
+            <center> Loading ... </center>
+        </div>
+
+        <ion-card *ngIf="postPreview!=undefined && state == 'Preview'">
+            <ion-slides [options]="options">
+                <ion-slide *ngFor="#image of postPreview.Images; #i = index">
+                    <img [hidden]="!toggleImage" src="{{imageUrl}}" (click)="editImageUrl()">
+                    <br>
+                    <ion-textarea *ngIf="!toggleImage" placeholder="Image Url" (blur)="editImageUrl()" type=text [(ngModel)]="imageUrl" rows="5">
+                    </ion-textarea>
+                </ion-slide>
+            </ion-slides>
+            <ion-card-content>
+                <h2> <b [hidden]="toggleHeadingEditing" (click)="editHeading()">{{postPreview.Heading}}</b>  
+                 <b> <ion-textarea placeholder="Write heading here.." rows="2" *ngIf="toggleHeadingEditing"  
+                 [(ngModel)]="postPreview.Heading" (blur)="editHeading()">  </ion-textarea> </b>
+            </h2>
+                <br>
+                <p [hidden]="toggleSnippetEditing" align="justify" (click)="editSnippet()" (blur)="editSnippet()">{{postPreview.Snippet}} </p>
+                <ion-textarea placeholder="Write snippet here.." rows="4" *ngIf="toggleSnippetEditing" [(ngModel)]="postPreview.Snippet">
+                    {{postPreview.Snippet}}
+                </ion-textarea>
+            </ion-card-content>
+            <ion-row>
+                <ion-item>
+                    <ion-label>Stream(s)</ion-label>
+                    <ion-select [(ngModel)]="streams" multiple="true">
+                        <ion-option value="politics">Politics</ion-option>
+                        <ion-option value="entertainment">Entertainment</ion-option>
+                        <ion-option value="sports">Sports</ion-option>
+                        <ion-option value="international">International</ion-option>
+                        <ion-option value="food">Food</ion-option>
+                        <ion-option value="fashion">Fashion</ion-option>
+                        <ion-option value="health">Health</ion-option>
+                        <ion-option value="economy">Economy</ion-option>
+                        <ion-option value="other">Other</ion-option>
+                    </ion-select>
+                </ion-item>
+            </ion-row>
+            <ion-row>
+                <ion-input placeholder="Image Tags.." type=text [(ngModel)]="tags" required> </ion-input>
+            </ion-row>
+            <ion-item [hidden]="postSource!='url'">
+                <ion-label>Language</ion-label>
+                <ion-select [(ngModel)]="feedStream">
+                    <ion-option value="english">English</ion-option>
+                    <ion-option value="hindi">Hindi</ion-option>
+                    <ion-option value="marathi">Marathi</ion-option>
+                    <ion-option value="telugu">Telugu</ion-option>
+                </ion-select>
+            </ion-item>
+            <ion-item>
+                <ion-row>
+                    <ion-col width-33>
+                        <button (click)="publish(true)" block> Skip </button>
+                    </ion-col>
+                    <ion-col width-33>
+                    </ion-col>
+                    <ion-col width-33>
+                        <button (click)="publish(false)" block> Publish </button>
+                    </ion-col>
+                </ion-row>
+            </ion-item>
+        </ion-card>
+
+    </div>
+</ion-content>
+
+<style>
+    .social-cards ion-col {
+        padding: 0;
+    }
+    
+    .postpage {
+        background-size: cover !important;
+        background-repeat: no-repeat !important;
+        background-position: 50% 50%;
+    }
+</style>

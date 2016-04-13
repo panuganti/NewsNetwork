@@ -1,0 +1,17 @@
+<ion-nav [root]="rootPage"></ion-nav>
+<ion-navbar *navbar hideBackButton class="show-navbar">
+    <ion-title>
+        <center> {{settingsLabel}} </center>
+    </ion-title>
+    <ion-buttons end>
+        <button (click)="saveAndGoBack()">
+            {{doneLabel}}
+        </button>
+    </ion-buttons>
+</ion-navbar>
+
+<ion-content>
+    <button (click)="signOut()" full>
+        {{signOutLabel}}
+    </button>
+</ion-content>

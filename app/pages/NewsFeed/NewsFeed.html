@@ -1,0 +1,105 @@
+<ion-navbar *navbar hideBackButton class="show-navbar android-attr navbar">
+    <ion-buttons center class="navbar">
+        <ion-row>
+            <ion-col>
+                <button (click)="refresh()">
+                    <ion-icon name="ios-home-outline"></ion-icon>
+                    <sup *ngIf="homeBadgeNumber > 0" style="color:red">
+                        {{homeBadgeNumber < 9 ? homeBadgeNumber: 9}}                        
+                        <span *ngIf="homeBadgeNumber > 9">+</span>
+                    </sup>
+                </button>
+            </ion-col>
+            <ion-col>
+                <button (click)="openCategorySettings()">
+                    <ion-icon name="ios-apps-outline"></ion-icon>
+                </button>
+            </ion-col>
+
+            <ion-col>
+                <button (click)="createNewPost()">
+                    <ion-icon name="ios-create-outline"></ion-icon>
+                    <!--
+                    <sup *ngIf="notificationBadgeNumber > 0" style="color:red">
+                        {{notificationBadgeNumber < 9 ? notificationBadgeNumber:9}} 
+                        <span *ngIf="notificationBadgeNumber > 9">+</span> 
+                    </sup>
+                    -->
+                </button>
+            </ion-col>
+
+            <ion-col>
+                <button (click)="showContacts()" [disabled]="!isContactsLoaded">
+                    <ion-icon name="ios-contacts-outline"></ion-icon>
+                </button>
+            </ion-col>
+            <ion-col>
+                <button (click)="openUserSettings()">
+                    <ion-icon name="ios-settings-outline"></ion-icon>
+                </button>
+            </ion-col>
+        </ion-row>
+    </ion-buttons>
+</ion-navbar>
+
+<ion-content class="has-header components-demo cards-bg social-cards newsfeed" [style.background]="backgroundImageUrl">
+    <!--
+    <ion-refresher pulling-text="Pull to refresh..." (refresh)="refresh()">
+        <ion-refresher-content pullingIcon="arrow-dropdown"> </ion-refresher-content>
+    </ion-refresher>
+    <ion-infinite-scroll *ngIf="moreDataCanBeLoaded()" spinner="lines" (infinite)="loadMore($event)" distance="5%">
+        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more news...">
+        </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+-->
+
+    <ion-slides [options]="options">
+        <ion-slide *ngFor="#article of articles; #i = index">
+            <ion-card>
+                <div (click)="openFullArticle($event,article.OriginalLink)">
+                    <img src="{{article.ImageUrl}}">
+                    <ion-card-content>
+                        <h2> <b>{{article.Heading}} </b> </h2>
+                        <br>
+                        <p align="justify">{{article.Snippet}}</p>
+                    </ion-card-content>
+                </div>
+                <ion-row>
+                    <ion-col>
+                        <ion-icon [hidden]="contains(article.LikedBy,userId)" (click)="addLike(article, userId)" name='ios-thumbs-up-outline'></ion-icon>
+                        <ion-icon [hidden]="!contains(article.LikedBy,userId)" (click)="removeLike(article, userId)" name='thumbs-up'></ion-icon>
+                        {{article.LikedBy.length}}
+                    </ion-col>
+                    <ion-col>
+                        <ion-icon [hidden]="contains(article.SharedBy,userId)" (click)="reTweet(article)" name='ios-repeat'></ion-icon>
+                        <ion-icon [hidden]="!contains(article.SharedBy,userId)" (click)="undoReTweet(article)" name='md-repeat'></ion-icon>
+                        {{article.SharedBy.length}}
+                    </ion-col>
+                    <!--
+                    <ion-col center text-center>
+                        <ion-note>
+                            {{article.LastActivity}} ago
+                        </ion-note>
+                    </ion-col>
+                    -->
+                </ion-row>
+            </ion-card>
+        </ion-slide>
+    </ion-slides>
+</ion-content>
+
+<style>
+    .social-cards ion-col {
+        padding: 0;
+    }
+    
+    .newsfeed {
+        background-size: cover !important;
+        background-repeat: no-repeat !important;
+        background-position: 50% 50%;
+    }
+    
+    .navbar {
+        background-color: white !important;
+    }
+</style>

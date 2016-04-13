@@ -1,0 +1,13 @@
+<ion-navbar *navbar hidebackbutton class="show-navbar">
+    <ion-buttons end>
+        <button (click)="goBack()">
+            {{backLabel}}
+        </button>
+    </ion-buttons>
+</ion-navbar>
+
+<ion-content>
+    <div style="overflow:auto;-webkit-overflow-scrolling:touch">
+        <iframe style="width:100%;height:600px" [src]="src"></iframe>
+    </div>
+</ion-content>

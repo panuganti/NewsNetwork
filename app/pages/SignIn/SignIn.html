@@ -1,0 +1,91 @@
+<video autoplay poster="resources/polina.jpg" id="bgvid" loop>
+    <!-- WCAG general accessibility recommendation is that media such as background video play through only once. 
+    Loop turned on for the purposes of illustration; if removed, the end of the video will fade in the same way created by pressing the "Pause" button  -->
+    <source src="resources/polina.webm" type="video/webm">
+    <source src="resources/polina.mp4" type="video/mp4">
+</video>
+
+<!-- Look for better solution than using a spacer -->
+<div class="spacer" style="width: auto; height: 100px;"></div>
+<ion-list>
+    <ion-item id="existingUser">
+        <ion-label>I'm an Existing User</ion-label>
+        <ion-checkbox [(ngModel)]="loginMode"></ion-checkbox>
+    </ion-item>
+</ion-list>
+<div class="spacer" style="width: auto; height: 50px;"></div>
+
+<div id="polina">
+    <ion-list>
+        <ion-item class="item item-text-wrap" [hidden]="loginError.length == 0">
+            <ion-label style="color:red"><center>{{loginError}}</center></ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label floating>{{emailLabel}}</ion-label>
+            <ion-input type="text" [(ngModel)]="email" required></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label floating>{{passwdLabel}}</ion-label>
+            <ion-input type="password" [(ngModel)]="password" required></ion-input>
+        </ion-item>
+        <ion-item [hidden]="loginMode">
+            <ion-label>Language</ion-label>
+            <ion-select [(ngModel)]="language">
+                <ion-option value="english">English</ion-option>
+                <ion-option value="hindi">Hindi</ion-option>
+                <ion-option value="marathi">Marathi</ion-option>
+                <ion-option value="telugu">Telugu</ion-option>
+            </ion-select>
+        </ion-item>
+        <ion-row responsive-sm>
+            <ion-col>
+                <button [hidden]="!loginMode" (click)="login()" primary full>{{enterLabel}}
+                </button>
+            </ion-col>
+            <ion-col>
+                <button [hidden]="loginMode" (click)="signup()" primary full>{{signupLabel}}
+                </button>
+            </ion-col>
+        </ion-row>
+        <center> {{termsLabel}} </center>
+    </ion-list>
+</div>
+
+<style>
+    .spinner svg {
+        width: 19% !important;
+        height: 85px !important;
+    }
+    
+    #existingUser {
+        /* Set colors */
+    }
+    
+    .SignIn {
+        background-size: cover !important;
+        background-repeat: no-repeat !important;
+        background-position: 100% 100%;
+    }
+    
+    video {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -100;
+        transform: translateX(-50%) translateY(-50%);
+        background: url('resources/polina.jpg') no-repeat;
+        background-size: cover;
+        transition: 0s opacity;
+    }
+    
+    #polina {
+        background: rgba(0, 0, 0, 0.3);
+        color: white;
+        width: 95%;
+        margin: 1rem;
+    }
+</style>
