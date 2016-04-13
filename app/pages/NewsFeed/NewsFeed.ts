@@ -1,9 +1,8 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 import Dictionary = collections.Dictionary;
 
-import {Page, NavController, NavParams, Modal, Platform, Alert} from 'ionic-angular';
+import {Page, NavController, NavParams, Modal, Platform, Alert, Loading} from 'ionic-angular';
 import {Http, Headers} from 'angular2/http';
-//import {SocialSharing} from 'ionic-native';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/retry';
@@ -12,8 +11,9 @@ import 'rxjs/add/observable/fromArray'; // required for Observable.of();
 import {PublishedPost, Stream, UserContactsInfo, UserContact} from '../../contracts/ServerContracts';
 import {UserSettings} from '../UserSettings/UserSettings';
 import {ContactsPage} from '../ContactsPage/ContactsPage';
-import {Contacts} from 'ionic-native';
+import {Contacts, SocialSharing} from 'ionic-native';
 import {Contact} from 'ionic-native/dist/plugins/contacts';
+
 //import {Notifications} from '../Notifications/Notifications';
 import {FullArticle} from '../FullArticle/FullArticle';
 import {PostPage} from '../PostPage/PostPage';
