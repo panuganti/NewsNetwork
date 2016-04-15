@@ -62,7 +62,7 @@ export class PostPage {
             this.nav.pop(); 
         }         
         let user = this.service.getUserInfo(this.userId);
-        user.subscribe(data => {console.log(data); this.canPost = data.CanPost; this.isAdmin = data.CanPost});
+        user.subscribe(data => { this.canPost = data.CanPost; this.isAdmin = data.CanPost});
     }
 
     editImageUrl() { this.toggleImage = !this.toggleImage; }
