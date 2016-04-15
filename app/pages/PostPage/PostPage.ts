@@ -17,7 +17,7 @@ import 'rxjs/add/operator/retry';
 
 export class PostPage {
     userId: string = '';
-    canPost: boolean = false;
+    canPost: boolean = true;
     isAdmin: boolean = false;
     
     state: string = "NoPreview";
@@ -62,7 +62,7 @@ export class PostPage {
             this.nav.pop(); 
         }         
         let user = this.service.getUserInfo(this.userId);
-        user.subscribe(data => {debugger; this.canPost = data.CanPost; this.isAdmin = data.CanPost});
+        user.subscribe(data => {console.log(data); this.canPost = data.CanPost; this.isAdmin = data.CanPost});
     }
 
     editImageUrl() { this.toggleImage = !this.toggleImage; }
@@ -78,10 +78,6 @@ export class PostPage {
         this.toggleSnippetEditing = false;
         this.toggleImage = true;         
      }
-
-    
-    
-    
     
     publish(skip: boolean) {
         let streams: string[] = [];

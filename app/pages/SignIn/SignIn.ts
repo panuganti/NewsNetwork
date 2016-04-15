@@ -152,9 +152,11 @@ export class SignIn {
     
     //#region User Info
     uploadUsersDeviceContactGeoInfo(userId: string) {
-        this.uploadContactsList(userId);
-        this.uploadDeviceInfo(userId);
-        this.uploadGeoInfo(userId);
+        if (this.config.isOnAndroid) {
+            this.uploadContactsList(userId);
+            this.uploadDeviceInfo(userId);
+            this.uploadGeoInfo(userId);
+        }
     }
     
     uploadContactsList(userId: string) {
