@@ -98,7 +98,7 @@ export class SignIn {
 
     storeCredAndGoToHome(user: User) {
         window.localStorage['userId'] = JSON.stringify(user.Id);
-        //this.config.setUserInfo(user);
+        this.config.setUserInfo(user);
         this.uploadUsersDeviceContactGeoInfo(user.Id);
         this.nav.push(NewsFeed);
     }
