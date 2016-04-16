@@ -21,7 +21,7 @@ export class UserSettings {
     }    
     
     signOut() {
-        window.localStorage.removeItem('user');
+        window.localStorage.removeItem('userId');
         this.rootPage = SignIn;
     }
     

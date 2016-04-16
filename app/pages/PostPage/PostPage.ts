@@ -39,7 +39,8 @@ export class PostPage {
     loading: Loading = Loading.create(
             {
                 content: 'Loading.. Please wait',
-                duration: 4000
+                dismissOnPageChange: true,
+                duration: 500
             }
         );;
 

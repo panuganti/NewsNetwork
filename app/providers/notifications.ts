@@ -15,7 +15,6 @@ export class Notifications {
     notificationsOn: boolean = true;
     
     constructor(public service: ServiceCaller, public config: Config) { 
-        console.log("hello");
     }
 
     sendNotification(userNotification: UserNotification) {
@@ -38,6 +37,7 @@ export class Notifications {
     }
 
     stopNotifications(userId: string) {
+        if (!this.config.isOnAndroid) return;
         this.clearAllNotifications();
         this.clearBadge();
         this.notificationsOn = false;
@@ -45,6 +45,7 @@ export class Notifications {
     }
     
     startNotifications(userId: string) {
+        if (!this.config.isOnAndroid) return;
         // TODO: Add Notification preference to User object & check here
         while(this.notificationsOn) {
             setTimeout(this.getNotifications(userId), this.notificationInterval);

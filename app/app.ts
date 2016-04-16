@@ -16,9 +16,7 @@ import {ServiceCaller} from './providers/servicecaller';
 import {Notifications} from './providers/notifications';
 import {Cache} from './providers/cache';
 
-
 import {User, UserContactsInfo, UserDeviceInfo, UserGeoInfo, Stream} from './contracts/ServerContracts';
-
 
 enableProdMode();
 

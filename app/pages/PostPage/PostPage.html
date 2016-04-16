@@ -46,11 +46,6 @@
                 </ion-item>
             </ion-list>
         </div>
-        <!-- TODO: Replace with Splashscreen -->
-        <div [hidden]="state!='Loading'">
-            <div class="spacer" style="width: auto; height: 150px;"></div>
-            <center> Loading ... </center>
-        </div>
 
         <ion-card *ngIf="postPreview!=undefined && state == 'Preview'">
             <ion-slides [options]="options">
