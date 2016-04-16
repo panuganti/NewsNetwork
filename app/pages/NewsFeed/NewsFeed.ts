@@ -42,7 +42,8 @@ export class NewsFeed {
 
     loading: Loading = Loading.create(
             {
-                content: 'Loading.. Please wait'
+                content: 'Loading.. Please wait',
+                                duration: 4000
             }
         );;
 

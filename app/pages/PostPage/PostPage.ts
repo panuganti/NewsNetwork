@@ -1,4 +1,4 @@
-import { Page, NavParams, NavController, Platform} from 'ionic-angular';
+import { Page, NavParams, NavController, Platform, Loading} from 'ionic-angular';
 
 import {ServiceCaller} from '../../providers/servicecaller';
 import {Config} from '../../providers/config';
@@ -36,6 +36,13 @@ export class PostPage {
     feedStream: string;
     defaultText = 'Write Text Here ..';
     goodImageExists: boolean = false;
+    loading: Loading = Loading.create(
+            {
+                content: 'Loading.. Please wait',
+                duration: 4000
+            }
+        );;
+
 
     public swiper: any;
     options: any = {
@@ -80,6 +87,7 @@ export class PostPage {
      }
     
     publish(skip: boolean) {
+        this.nav.present(this.loading);
         let streams: string[] = [];
         let tags: string[] = [];
         if(this.tags != undefined && this.tags != null && this.tags.length > 0) 
@@ -108,6 +116,7 @@ export class PostPage {
     }
     
     reset() {
+        this.loading.dismiss();
         this.state = "NoPreview";
         this.postSource = null;
         this.postPreview = this.emptyPreview;
@@ -121,7 +130,7 @@ export class PostPage {
     }
 
     loadArticle(postSource: string) {
-        this.state = 'Loading';
+        this.nav.present(this.loading);
         this.postSource = postSource;
         var articleData;
         if (postSource == 'url') {
@@ -134,6 +143,7 @@ export class PostPage {
     }
     
     prepareForEditing() {
+        this.loading.dismiss();
         this.state = 'Preview'; this.imageCounter = -1; this.loadNextImage(); 
         if (this.postPreview.Snippet == '') {this.postPreview.Snippet = this.defaultText;}
     }
