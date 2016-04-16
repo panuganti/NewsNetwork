@@ -1,7 +1,7 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 import Dictionary = collections.Dictionary;
 
-import {Page, NavController, NavParams} from 'ionic-angular';
+import {Platform, Page, NavController, NavParams} from 'ionic-angular';
 import {NewsFeed} from '../NewsFeed/NewsFeed';
 import {Config} from '../../providers/config';
 import {Cache} from '../../providers/cache';
@@ -44,7 +44,8 @@ export class SignIn {
 
     contacts: Contact[];
 
-    constructor(public nav: NavController, public config: Config, public cache: Cache, public service: ServiceCaller, public notifications: Notifications) {
+    constructor(public nav: NavController, public config: Config, public cache: Cache, public service: ServiceCaller, 
+                    public platform: Platform, public notifications: Notifications) {
     }
     
     onPageWillEnter() {        
@@ -153,9 +154,11 @@ export class SignIn {
     //#region User Info
     uploadUsersDeviceContactGeoInfo(userId: string) {
         if (this.config.isOnAndroid) {
+            this.platform.ready().then(() => {
             this.uploadContactsList(userId);
             this.uploadDeviceInfo(userId);
             this.uploadGeoInfo(userId);
+        });
         }
     }
     

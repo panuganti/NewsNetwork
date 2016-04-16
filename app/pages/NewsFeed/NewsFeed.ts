@@ -74,20 +74,28 @@ hideLoading() {
     this.loading.dismiss();
 }
 */
+
     //#region Notifications
     subscribeToNotifications() {
+        console.log(this.notifications);
         this.platform.ready().then(() => {
-            document.addEventListener("pause", this.onPause);
-            document.addEventListener("resume", this.onResume);
+            document.addEventListener("pause", () => this.onPause(this.notifications), false);
+            document.addEventListener("resume", () => this.onResume(this.notifications), false);
         });
     }
 
-    onPause() {
-        this.notifications.startNotifications(this.userId);
+    onPause(not: any) {
+        console.log("pausing...");
+        console.log(this.userId);
+        console.log(not);
+        not.startNotifications(this.userId);
     }
 
-    onResume() {
-        this.notifications.stopNotifications(this.userId);
+    onResume(not: any) {
+        console.log("resuming...");
+        console.log(this.userId);
+        console.log(not);
+        not.stopNotifications(this.userId);
     }
     //#endregion Notifications
 
@@ -130,8 +138,11 @@ hideLoading() {
     */
     
     share(article: PublishedPost) {
+        console.log("attempting to share..");
         if (this.config.isOnAndroid){
-            SocialSharing.share("Shared from NewsNetwork", null, null, article.OriginalLink);
+            this.platform.ready().then(() => {
+                SocialSharing.share("Shared from NewsNetwork", null, null, article.OriginalLink);                
+            });
         }
     }
     
