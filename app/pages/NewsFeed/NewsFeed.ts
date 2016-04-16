@@ -40,6 +40,12 @@ export class NewsFeed {
     backgroundImageUrl: string = "url(\"resources/background.jpg\")";
     public swiper: any;
 
+    loading: Loading = Loading.create(
+            {
+                content: 'Loading.. Please wait'
+            }
+        );;
+
     options: any = {
         direction: "vertical",
         keyboardControl: true,
@@ -56,24 +62,13 @@ export class NewsFeed {
 
     init() {
         this.userId = this.config.userId;
+        console.log(this.notifications);
         this.subscribeToNotifications();
-    }
-    /*
-        presentLoading() {
-           this.loading = Loading.create({
-    spinner: 'hide',
-    content: `
-      <div class="custom-spinner-container">
-        <div class="custom-spinner-box"></div>
-      </div>`,
-    duration: 5000
-  });
     }
 
 hideLoading() {
     this.loading.dismiss();
 }
-*/
 
     //#region Notifications
     subscribeToNotifications() {
@@ -97,9 +92,11 @@ hideLoading() {
         console.log(not);
         not.stopNotifications(this.userId);
     }
+
     //#endregion Notifications
 
     onPageWillEnter() {
+        this.nav.present(this.loading);
         this.refresh();
     }
 
@@ -110,7 +107,6 @@ hideLoading() {
     refresh() {
         this.newsFeedError = '';
         this.skip = 0;
-        //this.config.printTimeElapsed();
         this.swiper.slideTo(0, 100, true);
         this.fetchArticles(this.skip);
     }
@@ -138,7 +134,7 @@ hideLoading() {
     */
     
     share(article: PublishedPost) {
-        console.log("attempting to share..");
+        console.log("share clicked..");
         if (this.config.isOnAndroid){
             this.platform.ready().then(() => {
                 SocialSharing.share("Shared from NewsNetwork", null, null, article.OriginalLink);                
@@ -148,13 +144,13 @@ hideLoading() {
     
     update(art: PublishedPost[], skip: number) {
         this.service.prefetchImages(art);
-        this.config.printTimeElapsed();
         if (skip == 0) {
             this.articles = art.slice();
         } else {
             this.articles.concat(art.slice()); // TODO: Test
         }
         this.skip = this.articles.length;
+        this.loading.dismiss();
     }
 
     //#region Utils
