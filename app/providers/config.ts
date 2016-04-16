@@ -13,6 +13,7 @@ export class Config {
     //#region global variables
     userId: string = '';
     language: string = 'Hindi';
+    user: User = null;
     
     state: string = 'Active';
     globalTimer: number = 0;
@@ -24,6 +25,11 @@ export class Config {
     constructor(public service: ServiceCaller) {
         this.setInitialLabels();
     }   
+    
+    setUserInfo(user: User) {
+        this.userId = user.Id;
+        this.user = user;
+    }
     
     setStateToActive() {
         this.state = 'Active';

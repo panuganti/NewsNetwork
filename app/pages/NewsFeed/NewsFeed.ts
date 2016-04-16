@@ -129,6 +129,12 @@ hideLoading() {
     }
     */
     
+    share(article: PublishedPost) {
+        if (this.config.isOnAndroid){
+            SocialSharing.share("Shared from NewsNetwork", null, null, article.OriginalLink);
+        }
+    }
+    
     update(art: PublishedPost[], skip: number) {
         this.service.prefetchImages(art);
         this.config.printTimeElapsed();
