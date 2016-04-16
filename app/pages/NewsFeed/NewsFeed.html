@@ -75,6 +75,10 @@
                         <ion-icon [hidden]="!contains(article.SharedBy,userId)" (click)="undoReTweet(article)" name='md-repeat'></ion-icon>
                         {{article.SharedBy.length}}
                     </ion-col>
+                    <ion-col>
+                        <ion-icon [hidden]="contains(article.SharedBy,userId)" (click)="share(article)" name='md-share'></ion-icon>
+                        {{article.SharedBy.length}}
+                    </ion-col>
                     <!--
                     <ion-col center text-center>
                         <ion-note>
