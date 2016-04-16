@@ -71,13 +71,12 @@
                         {{article.LikedBy.length}}
                     </ion-col>
                     <ion-col>
-                        <ion-icon [hidden]="contains(article.SharedBy,userId)" (click)="reTweet(article)" name='ios-repeat'></ion-icon>
-                        <ion-icon [hidden]="!contains(article.SharedBy,userId)" (click)="undoReTweet(article)" name='md-repeat'></ion-icon>
+                        <ion-icon [hidden]="contains(article.SharedBy,userId)" (click)="reTweet(article, userId)" name='ios-repeat'></ion-icon>
+                        <ion-icon [hidden]="!contains(article.SharedBy,userId)" (click)="undoReTweet(article, userId)" name='md-repeat'></ion-icon>
                         {{article.SharedBy.length}}
                     </ion-col>
                     <ion-col>
-                        <ion-icon [hidden]="contains(article.SharedBy,userId)" (click)="share(article)" name='md-share'></ion-icon>
-                        {{article.SharedBy.length}}
+                        <ion-icon (click)="share(article)" name='md-share'></ion-icon>
                     </ion-col>
                     <!--
                     <ion-col center text-center>

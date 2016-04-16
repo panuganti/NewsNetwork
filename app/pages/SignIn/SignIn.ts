@@ -1,7 +1,7 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 import Dictionary = collections.Dictionary;
 
-import {Page, NavController, NavParams} from 'ionic-angular';
+import {Page, NavController, NavParams, Loading} from 'ionic-angular';
 import {NewsFeed} from '../NewsFeed/NewsFeed';
 import {Config} from '../../providers/config';
 import {Cache} from '../../providers/cache';
@@ -42,10 +42,17 @@ export class SignIn {
     signupLabel: string = "Sign Up";
     termsLabel: string = "Terms and Conditions";    
 
+    loading: Loading = Loading.create(
+            {
+                content: 'Loading.. Please wait'
+            }
+        );;
+
     contacts: Contact[];
 
     constructor(public nav: NavController, public config: Config, public cache: Cache, public service: ServiceCaller, public notifications: Notifications) {
     }
+    
     
     onPageWillEnter() {        
         this.checkConnectionToServer();
@@ -91,6 +98,7 @@ export class SignIn {
 */
 
     login() {
+        this.nav.present(this.loading);
         let validation = this.service.validateCredentials(this.email, this.password);
         validation.subscribe(data => { this.storeCredAndGoToHome(data); }, err => this.handleloginError(err));
 
@@ -100,6 +108,7 @@ export class SignIn {
         window.localStorage['userId'] = JSON.stringify(user.Id);
         this.config.setUserInfo(user);
         this.uploadUsersDeviceContactGeoInfo(user.Id);
+        this.loading.dismiss();
         this.nav.push(NewsFeed);
     }
 
@@ -107,6 +116,7 @@ export class SignIn {
         if (!this.validateInputs()) {
             return;
         }
+        this.nav.present(this.loading);
         let signup = this.service.signUp(this.email, this.password, this.language);
         signup.subscribe(data => this.storeCredAndGoToHome(data), err => this.handleloginError(err));
     }

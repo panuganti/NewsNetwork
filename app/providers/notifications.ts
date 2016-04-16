@@ -14,7 +14,9 @@ export class Notifications {
     notifications: any[] = [];
     notificationsOn: boolean = true;
     
-    constructor(public service: ServiceCaller, public config: Config) { }
+    constructor(public service: ServiceCaller, public config: Config) { 
+        console.log("hello");
+    }
 
     sendNotification(userNotification: UserNotification) {
         let badgeNumber = userNotification.badge;
