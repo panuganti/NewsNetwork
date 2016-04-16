@@ -9,6 +9,7 @@ import 'rxjs/add/operator/retry';
 import 'rxjs/add/observable/fromArray'; // required for Observable.of();
 
 import {PublishedPost, Stream, UserContactsInfo, UserContact} from '../../contracts/ServerContracts';
+import {ConnectivityError} from '../ConnectivityError/ConnectivityError';
 import {UserSettings} from '../UserSettings/UserSettings';
 import {ContactsPage} from '../ContactsPage/ContactsPage';
 import {Contacts, SocialSharing} from 'ionic-native';
@@ -30,6 +31,7 @@ import {Notifications} from '../../providers/notifications';
 })
 
 export class NewsFeed {
+    connectionError: string = '';
     userId: string = '';
     isContactsLoaded: boolean = false;
     skip: number = 0;
@@ -43,8 +45,7 @@ export class NewsFeed {
     loading: Loading = Loading.create(
         {
             content: 'Loading.. Please wait',
-            dismissOnPageChange: true,
-            duration: 500
+            dismissOnPageChange: true
         }
     );
 
@@ -85,6 +86,14 @@ export class NewsFeed {
     }
 
     //#endregion Notifications
+
+    checkConnectionToServer() {
+        var connectivityModal = Modal.create(ConnectivityError);
+        connectivityModal.onDismiss(data => { setTimeout(this.checkConnectionToServer(),10000); })
+
+        let ping = this.service.checkConnection();
+        ping.subscribe(data => {  setTimeout(this.checkConnectionToServer(),10000); }, err => { this.nav.present(this.connectivity); });
+    }
 
     onPageWillEnter() {
         this.onResume(this.notifications);

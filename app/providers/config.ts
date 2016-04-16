@@ -65,4 +65,13 @@ export class Config {
         this.labels.setValue('Login','Login');
         this.labels.setValue('SignUp', 'SignUp');
     }
+    
+    getLabel(label: string) {
+        try {
+            return this.labels.getValue(this.label.toLowerCase()); 
+        }
+        catch(error) {
+            return label;
+        }
+    }
 }

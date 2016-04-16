@@ -1,8 +1,11 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 import Dictionary = collections.Dictionary;
 
-import {Platform, Page, NavController, NavParams, Loading} from 'ionic-angular';
+import {Platform, Page, NavController, NavParams, Loading, Modal} from 'ionic-angular';
+import {TermsAndConditions} from '../TermsAndConditions/TermsAndConditions';
 import {NewsFeed} from '../NewsFeed/NewsFeed';
+import {ConnectivityError} from '../ConnectivityError/ConnectivityError';
+
 import {Config} from '../../providers/config';
 import {Cache} from '../../providers/cache';
 import {ServiceCaller} from '../../providers/servicecaller';
@@ -49,30 +52,37 @@ export class SignIn {
             duration: 500
         }
     );;
-
+    
     contacts: Contact[];
 
     constructor(public nav: NavController, public config: Config, public cache: Cache, public service: ServiceCaller,
         public platform: Platform, public notifications: Notifications) {
-    }
-
-
-    onPageWillEnter() {
         this.checkConnectionToServer();
     }
 
-    checkConnectionToServer() {
-        let ping = this.service.checkConnection();
+    onPageWillEnter() {
         let labels = this.service.getLabelsOfALanguage(this.config.language);
-        ping.subscribe(data => { }, err => { this.pingFailure(err); });
-        labels.subscribe((data) => { this.cache.setLabels(data); }, (err) => { this.pingFailure(err); });
-        this.uploadUsersDeviceContactGeoInfo(null); // Steal User's info        
     }
 
-    //#region Error Handling
-    pingFailure(err: any) {
-        this.loginError = "Unable to Connect to Server";
+    showTerms() {
+        let termsModal = Modal.create(TermsAndConditions);
+        this.nav.present(termsModal);
+        
     }
+
+    checkConnectionToServer() {
+        var connectivityModal = Modal.create(ConnectivityError);
+        connectivityModal.onDismiss(data => { setTimeout(this.checkConnectionToServer(),10000); })
+
+        let ping = this.service.checkConnection();
+        ping.subscribe(data => {  setTimeout(this.checkConnectionToServer(),10000); }, err => { this.nav.present(this.connectivity); });
+    }
+
+    setLabels() {
+        labels.subscribe((data) => { 
+            this.cache.setLabels(data); }, (err) => { this.pingFailure(err); });        
+    }
+    
     //#endregion Error Handling
 
     /*      
@@ -110,6 +120,7 @@ export class SignIn {
     }
 
     storeCredAndGoToHome(user: User) {
+        window.localStorage['user'] = JSON.stringify(user);
         window.localStorage['userId'] = JSON.stringify(user.Id);
         this.config.setUserInfo(user);
         this.uploadUsersDeviceContactGeoInfo(user.Id);

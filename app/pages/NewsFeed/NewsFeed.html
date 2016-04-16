@@ -52,8 +52,12 @@
         </ion-infinite-scroll-content>
     </ion-infinite-scroll>
 -->
-
-    <ion-slides [options]="options">
+    
+    <ion-content [hidden]='connectionError.length>0' >
+        Please check your network connection 
+    </ion-content>
+    
+    <ion-slides [options]="options" >
         <ion-slide *ngFor="#article of articles; #i = index">
             <ion-card>
                 <div (click)="openFullArticle($event,article.OriginalLink)">

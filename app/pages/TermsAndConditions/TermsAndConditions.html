@@ -1,0 +1,17 @@
+<ion-navbar *navbar hideBackButton class="show-navbar">
+    <ion-title>
+        <center> {{config.getLabel('TermsAndConditions')}} </center>
+    </ion-title>
+    <ion-buttons end>
+        <button (click)="goBack()">
+            {{config.getLabel('Accept')}}
+        </button>
+    </ion-buttons>
+</ion-navbar>
+
+<ion-content>
+    (1) By Signing In, you agree to our Terms and Policies <br>
+    (2) You confirm that you own the copyright of all the material you post<br>
+    (3) You agree to giving consent to access your contacts<br>
+    (4) You agree that we informed 
+</ion-content>
