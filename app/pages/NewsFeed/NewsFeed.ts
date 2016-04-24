@@ -92,7 +92,7 @@ export class NewsFeed {
         connectivityModal.onDismiss(data => { setTimeout(this.checkConnectionToServer(),10000); })
 
         let ping = this.service.checkConnection();
-        ping.subscribe(data => {  setTimeout(this.checkConnectionToServer(),10000); }, err => { this.nav.present(this.connectivity); });
+        ping.subscribe(data => {  setTimeout(this.checkConnectionToServer(),10000); }, err => { this.nav.present(connectivityModal); });
     }
 
     onPageWillEnter() {
@@ -112,6 +112,7 @@ export class NewsFeed {
     }
 
     handleError(err: any) {
+        debugger;
         this.newsFeedError = JSON.parse(err._body).ExceptionMessage;
         let alert = Alert.create({ title: 'Problem!', subTitle: this.newsFeedError, buttons: ['OK'] });
         this.nav.present(alert);
@@ -120,7 +121,9 @@ export class NewsFeed {
     fetchArticles(skip: number) {
         this.nav.present(this.loading);
         this.service.getNewsFeed(this.userId, skip)
-            .subscribe(posts => { this.update(posts, skip); },
+            .subscribe(posts => {
+                this.loading.dismiss(); 
+                this.update(posts, skip); },
             err => { this.handleError(err) });
     }
 
