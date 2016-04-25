@@ -68,7 +68,7 @@ export class Config {
     
     getLabel(label: string) {
         try {
-            return this.labels.getValue(this.label.toLowerCase()); 
+            return this.labels.getValue(label.toLowerCase()); 
         }
         catch(error) {
             return label;

@@ -1,4 +1,5 @@
 import {Page, NavParams, ViewController} from 'ionic-angular';
+import {Config} from '../../providers/config';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/retry';

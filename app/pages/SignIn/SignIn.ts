@@ -75,12 +75,7 @@ export class SignIn {
         connectivityModal.onDismiss(data => { setTimeout(this.checkConnectionToServer(),10000); })
 
         let ping = this.service.checkConnection();
-        ping.subscribe(data => {  setTimeout(this.checkConnectionToServer(),10000); }, err => { this.nav.present(this.connectivity); });
-    }
-
-    setLabels() {
-        labels.subscribe((data) => { 
-            this.cache.setLabels(data); }, (err) => { this.pingFailure(err); });        
+        ping.subscribe(data => {  setTimeout(this.checkConnectionToServer(),10000); }, err => { this.nav.present(connectivityModal); });
     }
     
     //#endregion Error Handling

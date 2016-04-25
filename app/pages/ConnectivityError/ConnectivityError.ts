@@ -1,5 +1,6 @@
 import {Page, NavController, ViewController} from 'ionic-angular';
 import {Config} from '../../providers/config';
+import {ServiceCaller} from '../../providers/servicecaller';
 import {PostPage} from '../PostPage/PostPage';
 import {SignIn} from '../SignIn/SignIn';
 import 'rxjs/add/operator/map';
