@@ -112,8 +112,8 @@ export class NewsFeed {
     }
 
     handleError(err: any) {
-        debugger;
-        this.newsFeedError = JSON.parse(err._body).ExceptionMessage;
+        this.loading.dismiss();
+        this.newsFeedError = 'Check your network Connection';
         let alert = Alert.create({ title: 'Problem!', subTitle: this.newsFeedError, buttons: ['OK'] });
         this.nav.present(alert);
     }
