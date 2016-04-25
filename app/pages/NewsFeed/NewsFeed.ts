@@ -1,8 +1,9 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 import Dictionary = collections.Dictionary;
 
-import {Page, NavController, NavParams, Modal, Platform, Alert, Loading} from 'ionic-angular';
+import {Page, NavController, NavParams, Modal, Platform, Alert, Loading, Slides} from 'ionic-angular';
 import {Http, Headers} from 'angular2/http';
+import {ViewChild} from 'angular2/core';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/retry';
@@ -40,7 +41,9 @@ export class NewsFeed {
     homeBadgeNumber: number = 0;
     notificationBadgeNumber: number = 0;
     backgroundImageUrl: string = "url(\"resources/background.jpg\")";
-    public swiper: any;
+    public swiperx: any;
+
+    @ViewChild('slides') swiper: Slides;
 
     loading: Loading = Loading.create(
         {
@@ -163,7 +166,7 @@ export class NewsFeed {
 
     //#region User Reaction
     slideChanged() {
-        let slideNo = this.swiper.activeIndex;
+        let slideNo = this.swiper.getActiveIndex();
         let totalSlides = this.articles.length;
         if (totalSlides > 0 && totalSlides - slideNo < 5) {
             this.fetchArticles(this.skip);

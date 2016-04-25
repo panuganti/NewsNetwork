@@ -53,7 +53,7 @@
     </ion-infinite-scroll>
 -->
     
-    <ion-slides [options]="options" >
+    <ion-slides #slides [options]="options" >
         <ion-slide *ngFor="#article of articles; #i = index">
             <ion-card>
                 <div (click)="openFullArticle($event,article.OriginalLink)">

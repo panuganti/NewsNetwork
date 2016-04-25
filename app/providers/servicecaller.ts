@@ -14,8 +14,8 @@ import {PostPreview, UserNotification, UnpublishedPost, User, PublishedPost, Use
 @Injectable()
 export class ServiceCaller {
     url: string = "https://script.google.com/macros/s/AKfycbz2ZMnHuSR4GmTjsuIo6cmh433RRpPRH7TwMaJhbAUr/dev";
-    apiUrl: string = "http://newsswipesserver20160101.azurewebsites.net";
-    //apiUrl: string = "http://localhost:54909";
+    //apiUrl: string = "http://newsswipesserver20160101.azurewebsites.net";
+    apiUrl: string = "http://localhost:54909";
 
     constructor(public cache: Cache, public http: Http) {
     }
@@ -103,8 +103,8 @@ export class ServiceCaller {
         return this.getRequest<Stream[]>("/user/GetStreams/", userId);
     }
     
-    updateUserStreams(userId: string, streams: Stream[]) : Observable<Stream[]> {
-        return this.postRequest<Stream[]>("/user/UpdateStreams/" + userId, JSON.stringify(streams));
+    updateUserStreams(userId: string, streams: Stream[]) : Observable<boolean> {
+        return this.postRequest<boolean>("/user/UpdateStreams/" + userId, JSON.stringify(streams));
     }
 
     unFollow(userContact: UserContact): Observable<boolean> {
