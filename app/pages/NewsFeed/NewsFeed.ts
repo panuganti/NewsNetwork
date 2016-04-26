@@ -1,9 +1,9 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 import Dictionary = collections.Dictionary;
 
-import {Page, NavController, NavParams, Modal, Platform, Alert, Loading, Slides} from 'ionic-angular';
+import { Page, NavController, NavParams, Modal, Platform, Alert, Loading, Slides} from 'ionic-angular';
 import {Http, Headers} from 'angular2/http';
-import {ViewChild} from 'angular2/core';
+import {ElementRef,ViewChild} from 'angular2/core';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/retry';
@@ -40,7 +40,6 @@ export class NewsFeed {
     homeBadgeNumber: number = 0;
     notificationBadgeNumber: number = 0;
     backgroundImageUrl: string = "url(\"resources/background.jpg\")";
-    public swiperx: any;
 
     @ViewChild('slides') swiper: Slides;
 
@@ -72,6 +71,7 @@ export class NewsFeed {
         this.subscribeToNotifications();
         this.loadContacts();
     }
+
 
     //#region Notifications
     subscribeToNotifications() {
@@ -143,6 +143,30 @@ export class NewsFeed {
     }
     */
 
+    //#region Sharing
+    takeScreenshot(element: HTMLElement, callback: any) {
+        var parentThis = this;
+        var options: Html2Canvas.Html2CanvasOptions = {
+            onrendered(canvas) {
+                var myImage: string = canvas.toDataURL("image/png");
+                callback(myImage, parentThis);
+            }
+        };
+        html2canvas(element, options);
+    }
+
+    shareScreenshot() {
+        let index = this.swiper.getActiveIndex();
+        var element: HTMLElement = this.swiper.getSlider().slides[index];
+        this.takeScreenshot(element, this.shareImage);
+    }
+
+    shareImage(imageUrl: string, parentThis: any) {
+            parentThis.platform.ready().then(() => {
+                SocialSharing.share(null, null, null, imageUrl);
+            });
+    } 
+    
     share(article: PublishedPost) {
         console.log("share clicked..");
         if (this.config.isOnAndroid) {
@@ -151,6 +175,8 @@ export class NewsFeed {
             });
         }
     }
+    //#endregion Sharing
+
 
     update(art: PublishedPost[], skip: number) {
         if (skip == 0) {
@@ -204,12 +230,8 @@ export class NewsFeed {
     }
 
     loadContacts(refresh: boolean = false) {
-        console.log("loading contacts..");
-        this.refreshContacts();
-
-        let contacts: Contact[] = JSON.parse(window.localStorage['contacts']);
+        let contacts: Contact[] = JSON.parse(window.localStorage['contacts'] || '{}');
         if (contacts != undefined && contacts.length > 0) {
-            console.log(contacts);
             this.isContactsLoaded = true;
             console.log("contacts already in local store");
         }
