@@ -32,11 +32,10 @@ export class Categories {
 
     constructor(public config: Config, public nav: NavController,
         public view: ViewController, public service: ServiceCaller) {
-        this.init();
     }
 
-    init() {
-        this.userId = JSON.parse(window.localStorage['userId']); 
+    onPageWillEnter() {
+        this.userId = this.config.userId; 
         if (this.userId == undefined || this.userId.length == 0) {
             this.nav.push(SignIn); // TODO: Change this to setting root
         }         

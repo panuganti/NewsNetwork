@@ -45,13 +45,6 @@ export class NewsFeed {
 
     @ViewChild('slides') swiper: Slides;
 
-    loading: Loading = Loading.create(
-        {
-            content: 'Loading.. Please wait',
-            dismissOnPageChange: true
-        }
-    );
-
     options: any = {
         direction: "vertical",
         keyboardControl: true,
@@ -66,9 +59,19 @@ export class NewsFeed {
         this.init();
     }
 
+    createLoading(): Loading {
+        return Loading.create(
+            {
+                content: 'Loading.. Please wait',
+                dismissOnPageChange: true
+            }
+        );
+    }
+
     init() {
         this.userId = this.config.userId;
         this.subscribeToNotifications();
+        this.loadContacts();
     }
 
     //#region Notifications
@@ -92,10 +95,10 @@ export class NewsFeed {
 
     checkConnectionToServer() {
         var connectivityModal = Modal.create(ConnectivityError);
-        connectivityModal.onDismiss(data => { setTimeout(this.checkConnectionToServer(),10000); })
+        connectivityModal.onDismiss(data => { setTimeout(this.checkConnectionToServer(), 10000); })
 
         let ping = this.service.checkConnection();
-        ping.subscribe(data => {  setTimeout(this.checkConnectionToServer(),10000); }, err => { this.nav.present(connectivityModal); });
+        ping.subscribe(data => { setTimeout(this.checkConnectionToServer(), 10000); }, err => { this.nav.present(connectivityModal); });
     }
 
     onPageWillEnter() {
@@ -115,19 +118,20 @@ export class NewsFeed {
     }
 
     handleError(err: any) {
-        this.loading.dismiss();
         this.newsFeedError = 'Check your network Connection';
         let alert = Alert.create({ title: 'Problem!', subTitle: this.newsFeedError, buttons: ['OK'] });
         this.nav.present(alert);
     }
 
     fetchArticles(skip: number) {
-        this.nav.present(this.loading);
+        var loading = this.createLoading();
+        this.nav.present(loading);
         this.service.getNewsFeed(this.userId, skip)
             .subscribe(posts => {
-                this.loading.dismiss(); 
-                this.update(posts, skip); },
-            err => { this.handleError(err) });
+                loading.dismiss();
+                this.update(posts, skip);
+            },
+            err => { loading.dismiss(); this.handleError(err) });
     }
 
     /*
@@ -201,19 +205,23 @@ export class NewsFeed {
     }
 
     loadContacts(refresh: boolean = false) {
+        console.log("loading contacts..");
         let contacts: Contact[] = JSON.parse(window.localStorage['contacts'] || '{}');
-        let contactsFromServer = this.service.fetchContacts(this.userId);
-        if (contacts != undefined || contacts.length == 0) {
+        if (contacts != undefined && contacts.length > 0) {
             this.isContactsLoaded = true;
+            console.log("contacts already in local store");
         }
         else {
+            let contactsFromServer = this.service.fetchContacts(this.userId);
             contactsFromServer.subscribe(data => {
                 if (data.length == 0) {
+                    console.log("remote contacts is empty");
                     this.refreshContacts();
                 }
                 else {
                     window.localStorage['contacts'] = JSON.stringify(data)
                     this.isContactsLoaded = true;
+                    console.log("contacts fetched from remote");
                 }
             });
         }
@@ -222,8 +230,11 @@ export class NewsFeed {
     refreshContacts() {
         var contactJson: UserContactsInfo;
         let contacts: UserContact[] = [];
+        console.log("loading contacts from plugin")
+        if (!this.config.isOnAndroid) return;
         var contactsList = Contacts.find(['*']);
         contactsList.then(data => {
+            console.log("contacts fetched by plugin");
             contacts = Enumerable.From(data).Select(c => {
                 let contact: UserContact = {
                     profileImg: '',
@@ -240,6 +251,7 @@ export class NewsFeed {
             this.isContactsLoaded = true;
             contactJson = { UserId: this.userId, JSON: jsonArray }
             let contactsUpload = this.service.uploadContactsList(JSON.stringify(contactJson));
+            console.log("updating remote contacts");
             contactsUpload.subscribe(data => { console.log("contacts updated"); });
         });
     }

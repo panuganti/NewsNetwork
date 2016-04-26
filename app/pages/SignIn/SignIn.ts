@@ -45,13 +45,14 @@ export class SignIn {
     signupLabel: string = "Sign Up";
     termsLabel: string = "Terms and Conditions";
 
-    loading: Loading = Loading.create(
-        {
-            content: 'Signing In.. Please wait',
-            dismissOnPageChange: true,
-            duration: 500
-        }
-    );;
+    createLoading(): Loading {
+        return Loading.create(
+            {
+                content: 'Signing In.. Please wait',
+                dismissOnPageChange: true
+            }
+        );
+    }
     
     contacts: Contact[];
 
@@ -66,8 +67,7 @@ export class SignIn {
 
     showTerms() {
         let termsModal = Modal.create(TermsAndConditions);
-        this.nav.present(termsModal);
-        
+        this.nav.present(termsModal);        
     }
 
     checkConnectionToServer() {
@@ -107,11 +107,15 @@ export class SignIn {
 
     login() {
         let validation = this.service.validateCredentials(this.email, this.password);
-        this.nav.present(this.loading);
+        let loading = this.createLoading();
+        this.nav.present(loading);
         validation.subscribe(data => {
-              this.loading.dismiss();
-              this.storeCredAndGoToHome(data); }, err => this.handleloginError(err));
-
+                loading.dismiss();
+                this.storeCredAndGoToHome(data); 
+            }, 
+            err => {loading.dismiss(); 
+                this.handleloginError(err);}
+        );
     }
 
     storeCredAndGoToHome(user: User) {
@@ -127,10 +131,12 @@ export class SignIn {
             return;
         }
         let signup = this.service.signUp(this.email, this.password, this.language);
-        this.nav.present(this.loading);
-        signup.subscribe(data => {  this.loading.dismiss();
+        let loading = this.createLoading();
+        this.nav.present(loading);
+        signup.subscribe(data => {  loading.dismiss();
                                     this.storeCredAndGoToHome(data);
-                                } , err => this.handleloginError(err));
+                                } ,
+                           err => {loading.dismiss(); this.handleloginError(err); });
     }
 
     validateInputs() {
@@ -150,7 +156,6 @@ export class SignIn {
     }
 
     handleloginError(err: any) {
-        this.loading.dismiss();
         this.loginError = JSON.parse(err._body).ExceptionMessage;
     }
 
