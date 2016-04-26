@@ -31,11 +31,13 @@ export class ContactsPage {
     defaultGreetingLabel: string = 'Hey there! Great to see you here';
     defaultSMSMessage: string = 'Hey, Check out this app';
 
-    constructor(public config: Config, public service: ServiceCaller, public nav: NavController, public platform: Platform, public http: Http) {
-        //this.loadContactsFromFile();
-        this.loadContacts();
+    constructor(public config: Config, public service: ServiceCaller, 
+            public nav: NavController, public platform: Platform, public http: Http) {
     }
 
+    onPageWillEnter() {
+        this.loadContacts();        
+    }
     // TODO: Delete .. Fetch from local store or remote
     loadContactsFromFile() {
         this.http.get(this.contactsJsonFile).map(res => res.json())
@@ -43,51 +45,14 @@ export class ContactsPage {
     }
 
     // TODO: There should be no need to filter again
-    filterContacts(data: UserContact[]) {
-         this.userContacts = Enumerable.From(data).OrderBy(elem => elem.Name).ToArray();
+    filterContacts(data: UserContact[]) : UserContact[] {
+         return Enumerable.From(data).Where(elem => elem.Email.length > 2).OrderBy(elem => elem.Name).ToArray();
     }
 
-    //#region Contacts`
-    showContacts() {
-        this.nav.push(ContactsPage);
+    loadContacts(refresh: boolean = false) {        
+         this.contacts = JSON.parse(window.localStorage['contacts']);
+        this.userContacts = this.filterContacts(this.contacts);
     }
-    
-    loadContacts(refresh: boolean = false) {
-         this.userId = JSON.parse(window.localStorage['userId'] || '{}');
-         if (this.userId == undefined || this.userId.length == 0) { this.nav.pop();}
-
-         this.contacts = JSON.parse(window.localStorage['contacts'] || '{}');
-        if (this.contacts != undefined || this.contacts.length == 0) {
-            //let contactsFromServer = this.service.fetchContacts(userId);
-            this.nav.pop();
-        }
-    }
-
-/*    
-    refreshContacts() {
-        var contactJson: UserContactsInfo;
-        let contacts: UserContact[] = [];
-        var contactsList = Contacts.find(['*']);
-        contactsList.then(data => { 
-            contacts = Enumerable.From(data).Select(c => {
-            let contact: UserContact = {
-                profileImg: '',
-                Name: '',
-                isOnNetwork: false,
-                isFollowing: true,
-                Phone: '',
-                Email: ''                
-            };                
-            return contact;}).ToArray();
-            let jsonArray = JSON.stringify(contacts);
-            window.localStorage['contacts'] = jsonArray; 
-            contactJson = { UserId: this.userId, JSON: jsonArray }
-            let contactsUpload = this.service.uploadContactsList(JSON.stringify(contactJson));
-            contactsUpload.subscribe(data => {console.log("contacts updated");});            
-                });
-    }
-    */
-    //#region Contacts`
 
     saveAndGoBack() {
         // write settings to cloud       

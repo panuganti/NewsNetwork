@@ -44,8 +44,4 @@ export class Cache {
         return this.langArticleCache.getValue(lang);
     }
     //#endregion Article Cache
-
-    //#region Contacts Cache
-    //#endregion Contacts Cache
-
 }

@@ -16,7 +16,6 @@ import {ContactsPage} from '../ContactsPage/ContactsPage';
 import {Contacts, SocialSharing} from 'ionic-native';
 import {Contact} from 'ionic-native/dist/plugins/contacts';
 
-//import {Notifications} from '../Notifications/Notifications';
 import {FullArticle} from '../FullArticle/FullArticle';
 import {PostPage} from '../PostPage/PostPage';
 import {SignIn} from '../SignIn/SignIn';
@@ -206,8 +205,11 @@ export class NewsFeed {
 
     loadContacts(refresh: boolean = false) {
         console.log("loading contacts..");
-        let contacts: Contact[] = JSON.parse(window.localStorage['contacts'] || '{}');
+        this.refreshContacts();
+
+        let contacts: Contact[] = JSON.parse(window.localStorage['contacts']);
         if (contacts != undefined && contacts.length > 0) {
+            console.log(contacts);
             this.isContactsLoaded = true;
             console.log("contacts already in local store");
         }
@@ -230,22 +232,26 @@ export class NewsFeed {
     refreshContacts() {
         var contactJson: UserContactsInfo;
         let contacts: UserContact[] = [];
-        console.log("loading contacts from plugin")
+        console.log("loading contacts from plugin");
         if (!this.config.isOnAndroid) return;
-        var contactsList = Contacts.find(['*']);
+        var contactsList: Promise<Contact[]> = Contacts.find(['*']);
         contactsList.then(data => {
             console.log("contacts fetched by plugin");
-            contacts = Enumerable.From(data).Select(c => {
-                let contact: UserContact = {
-                    profileImg: '',
-                    Name: '',
-                    isOnNetwork: false,
-                    isFollowing: true,
-                    Phone: '',
-                    Email: ''
-                };
-                return contact;
-            }).ToArray();
+            contacts = Enumerable.From(data).Where(c => c.displayName != null && c.emails != null && c.phoneNumbers != null)
+                .Where(c => c.displayName.length > 0 && c.emails.length > 0 && c.phoneNumbers.length > 0)
+                .Select(c => {
+                    let contact: UserContact = {
+                        profileImg: '',
+                        Name: c.displayName,
+                        isOnNetwork: false,
+                        isFollowing: true,
+                        Phone: c.phoneNumbers[0].value,
+                        Email: c.emails[0].value
+                    };
+                    return contact;
+                }).ToArray();
+            console.log(contacts);
+            
             let jsonArray = JSON.stringify(contacts);
             window.localStorage['contacts'] = jsonArray;
             this.isContactsLoaded = true;

@@ -24,10 +24,6 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';  // debug
 import 'rxjs/add/operator/catch';
 
-/* TODO: 1) Handle Error and display
-    2) Fetch Email from cordova Device plugin
-*/
-
 @Page({
     templateUrl: 'build/pages/SignIn/SignIn.html'
 })
@@ -79,31 +75,6 @@ export class SignIn {
     }
     
     //#endregion Error Handling
-
-    /*      
-        uploadUserInfo(userId: string) {
-            // TODO: Check connection and handle error
-            this.uploadUsersDeviceContactGeoInfo(userId);
-        }
-      */
-    /* TODO: Move this to app.ts
-    checkIfUserIsLoggedIn() {
-        let user: User = JSON.parse(window.localStorage['user'] || '{}');
- 
-        if (user.Id != undefined) {
-            this.loadUserInfo(user.Id, true);
-        }
-    }
-    */
-
-    /*
-    loadUserInfo(userId: string, navigate: boolean) {
-        let userInfo = this.service.getUserInfo(userId);
-        userInfo.subscribe((data) => {
-            let firstTime = false; if (data.Language == null) {firstTime = true;}
-            this.config.setUserInfo(data); if (navigate) this.navigate(firstTime);});
-    }
-*/
 
     login() {
         let validation = this.service.validateCredentials(this.email, this.password);
@@ -220,7 +191,6 @@ export class SignIn {
     //#endregion User Info
 
     // #region Version
-
     /*
     checkVersion() {
         let versionInfo = this.service.getVersionInfo();
@@ -248,5 +218,4 @@ export class SignIn {
     }
     */
     // #endregion Version
-
 }

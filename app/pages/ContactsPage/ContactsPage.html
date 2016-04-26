@@ -11,10 +11,10 @@
         <ion-item-sliding *ngFor="#item of userContacts; #i = index">
             <ion-item>
                 <ion-avatar item-left>
-                    <img [hidden]="item.profileImg!=''" src="item.profileImg">                    
+                   <!-- <img [hidden]="item.profileImg!=''" src="item.profileImg"> -->                    
                     <img [hidden]="item.src==undefined || item.src==undefined==''" src="resources/person_placeholder.jpg">
                 </ion-avatar>
-                <h2>{{item.displayName}}</h2> 
+                <h2>{{item.Name}}</h2> 
                 <p [hidden]='item.isOnNetwork'> {{defaultInviteLabel}} </p>
                 <p [hidden]='!item.isOnNetwork'> {{defaultGreetingLabel}} </p>
                 <button [hidden]='item.isOnNetwork' secondary item-right (click)="invite(item)">INVITE</button>
