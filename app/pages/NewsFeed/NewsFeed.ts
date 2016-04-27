@@ -3,7 +3,7 @@ import Dictionary = collections.Dictionary;
 
 import { Page, NavController, NavParams, Modal, Platform, Alert, Loading, Slides} from 'ionic-angular';
 import {Http, Headers} from 'angular2/http';
-import {ElementRef,ViewChild} from 'angular2/core';
+import {ElementRef, ViewChild} from 'angular2/core';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/retry';
@@ -45,7 +45,10 @@ export class NewsFeed {
 
     options: any = {
         direction: "vertical",
-        keyboardControl: true,
+        effect: 'fade',
+        fade: {
+            crossFade: true
+        }, keyboardControl: true,
         mousewheelControl: true,
         onlyExternal: false,
         onInit: (slides: any) => { this.swiper = slides; this.refresh(); },
@@ -147,6 +150,11 @@ export class NewsFeed {
     takeScreenshot(element: HTMLElement, callback: any) {
         var parentThis = this;
         var options: Html2Canvas.Html2CanvasOptions = {
+            logging: true,
+            timeout: 0, // Use 0 for no timeout
+            useCORS: false,  // try to load images as CORS (where available), before falling back to proxy
+            allowTaint: false,
+            // proxy: 
             onrendered(canvas) {
                 var myImage: string = canvas.toDataURL("image/png");
                 callback(myImage, parentThis);
@@ -161,12 +169,13 @@ export class NewsFeed {
         this.takeScreenshot(element, this.shareImage);
     }
 
-    shareImage(imageUrl: string, parentThis: any) {
-            parentThis.platform.ready().then(() => {
-                SocialSharing.share(null, null, null, imageUrl);
-            });
-    } 
-    
+    shareImage(imageUrl: any, parentThis: any) {
+        parentThis.platform.ready().then(() => {
+            window.open(imageUrl);
+            //SocialSharing.share("Shared from NewsNetwork", null, imageUrl);
+        });
+    }
+
     share(article: PublishedPost) {
         console.log("share clicked..");
         if (this.config.isOnAndroid) {
@@ -273,7 +282,7 @@ export class NewsFeed {
                     return contact;
                 }).ToArray();
             console.log(contacts);
-            
+
             let jsonArray = JSON.stringify(contacts);
             window.localStorage['contacts'] = jsonArray;
             this.isContactsLoaded = true;
