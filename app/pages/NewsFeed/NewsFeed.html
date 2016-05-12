@@ -44,20 +44,29 @@
 
 <ion-content class="has-header components-demo cards-bg social-cards newsfeed" [style.background]="backgroundImageUrl">
     <!--
-    <ion-refresher pulling-text="Pull to refresh..." (refresh)="refresh()">
+    <ion-refresher pulling-text="Pull to refresh..." (refresh)="refresher()">
         <ion-refresher-content pullingIcon="arrow-dropdown"> </ion-refresher-content>
     </ion-refresher>
-    <ion-infinite-scroll *ngIf="moreDataCanBeLoaded()" spinner="lines" (infinite)="loadMore($event)" distance="5%">
-        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more news...">
-        </ion-infinite-scroll-content>
-    </ion-infinite-scroll>
+    -->
+    <!--
 -->
-    
+
+    <!--    
     <ion-slides #slides [options]="options" >
         <ion-slide *ngFor="#article of articles; #i = index" class="myslide">
+            -->
+            
+    <ion-list #list>
+    <ion-infinite-scroll *ngIf="moreDataCanBeLoaded()" spinner="lines" (infinite)="loadMore($event)" distance="50%">
+        <!--
+        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more news...">
+        </ion-infinite-scroll-content>
+        -->
+    </ion-infinite-scroll>
+        <ion-item *ngFor="#article of articles; #i = index">
             <ion-card>
                 <div (click)="openFullArticle($event,article.OriginalLink)">
-                    <img width="100" height="100" src="{{article.ImageUrl}}">
+                    <img src="{{article.ImageUrl}}">
                     <ion-card-content>
                         <h2> <b>{{article.Heading}} </b> </h2>
                         <br>
@@ -87,14 +96,20 @@
                     -->
                 </ion-row>
             </ion-card>
+        </ion-item>
+    </ion-list>
+    
+    <!--
         </ion-slide>
     </ion-slides>
+    -->
 </ion-content>
 
 <style>
     .myslide {
-        -webkit-font-smoothing : none !important;
+        -webkit-font-smoothing: none !important;
     }
+    
     .social-cards ion-col {
         padding: 0;
     }

@@ -41,7 +41,7 @@ export class Categories {
     
     saveAndGoBack() {
         let updateStreams = this.service.updateUserStreams(this.userId, this.streams);
-        updateStreams.subscribe(data => { console.log(data);})
+        updateStreams.subscribe(data => { console.log("streams updated" + data);})
         this.view.dismiss();
     }
 }

@@ -1,7 +1,7 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 import Dictionary = collections.Dictionary;
 
-import { Page, NavController, NavParams, Modal, Platform, Alert, Loading, Slides} from 'ionic-angular';
+import { Page, NavController, NavParams, Modal, Platform, Alert, Loading, Slides, List, Content} from 'ionic-angular';
 import {Http, Headers} from 'angular2/http';
 import {ElementRef, ViewChild} from 'angular2/core';
 import {Contacts, SocialSharing} from 'ionic-native';
@@ -30,6 +30,8 @@ import {Notifications} from '../../providers/notifications';
 })
 
 export class NewsFeed {
+    @ViewChild(Content) content: Content;
+    
     constructor(public http: Http, public platform: Platform, public nav: NavController, public navParams: NavParams,
         public config: Config, public service: ServiceCaller, public notifications: Notifications) {
         this.init();
@@ -39,7 +41,8 @@ export class NewsFeed {
         return Loading.create(
             {
                 content: 'Loading.. Please wait',
-                dismissOnPageChange: true
+                dismissOnPageChange: true,
+                duration: 4000
             }
         );
     }
@@ -69,6 +72,20 @@ export class NewsFeed {
 
     //#endregion Notifications
 
+    moreDataCanBeLoaded() {
+        console.log('..more data');
+        return true;
+    }
+    
+    loadMore(event:any) {
+        console.log('loading more..');
+        this.articles = this.articles.slice();
+    }
+
+    refresher() {
+        console.log('refesher..');    
+    }
+    
     checkConnectionToServer() {
         var connectivityModal = Modal.create(ConnectivityError);
         connectivityModal.onDismiss(data => { setTimeout(this.checkConnectionToServer(), 10000); })
@@ -89,7 +106,8 @@ export class NewsFeed {
     refresh() {
         this.newsFeedError = '';
         this.skip = 0;
-        if (this.swiper.getSlider.length > 0) { this.swiper.slideTo(0, 100, true); }
+        this.content.scrollToTop();
+//        if (this.swiper.getSlider.length > 0) { this.swiper.slideTo(0, 100, true); }
         this.fetchArticles(this.skip);
     }
 
@@ -105,9 +123,13 @@ export class NewsFeed {
         this.service.getNewsFeed(this.config.user.Id, skip)
             .subscribe(posts => {
                 loading.dismiss();
+                console.log('loading dismissed..');
+                console.log(posts.length);
                 this.update(posts, skip);
             },
-            err => { loading.dismiss(); this.handleError(err) });
+            err => { loading.dismiss();                 
+                        console.log('loading dismissed..');
+                        this.handleError(err) });
     }
 
     //#region Sharing
@@ -127,9 +149,9 @@ export class NewsFeed {
     }
 
     shareScreenshot() {
-        let index = this.swiper.getActiveIndex();
-        var element: HTMLElement = this.swiper.getSlider().slides[index];
-        this.takeScreenshot(element, this.shareImage);
+//        let index = this.swiper.getActiveIndex();
+  //      var element: HTMLElement = this.swiper.getSlider().slides[index];
+ //       this.takeScreenshot(element, this.shareImage);
     }
 
     shareImage(imageUrl: any, parentThis: any) {
@@ -151,10 +173,13 @@ export class NewsFeed {
 
 
     update(art: PublishedPost[], skip: number) {
+        console.log('updating posts');
         if (skip == 0) {
             this.articles = art.slice();
+            console.log(this.articles);
         } else {
             this.articles.concat(art.slice()); // TODO: Test
+            console.log(this.articles.length);
         }
         this.skip = this.articles.length;
     }
@@ -166,6 +191,7 @@ export class NewsFeed {
     //#endregion Utils
 
     //#region User Reaction
+    /*
     slideChanged() {
         let slideNo = this.swiper.getActiveIndex();
         let totalSlides = this.articles.length;
@@ -173,7 +199,7 @@ export class NewsFeed {
             this.fetchArticles(this.skip);
             // fetch next set of articles
         }
-    }
+    }*/
 
     addLike(article: PublishedPost, userId: string) {
         var likes = this.service.sendUserReaction(article.Id, userId, 'Like');
@@ -291,11 +317,12 @@ export class NewsFeed {
     notificationBadgeNumber: number = 0;
     backgroundImageUrl: string = "url(\"resources/background.jpg\")";
 
-    @ViewChild('slides') swiper: Slides;
+//    @ViewChild('slides') swiper: Slides;
 
+/*
     options: any = {
         direction: "vertical",
-        effect: 'fade',
+        effect: 'slide',
         fade: {
             crossFade: true
         }, keyboardControl: true,
@@ -304,4 +331,5 @@ export class NewsFeed {
         onInit: (slides: any) => { this.swiper = slides; },
         onSlideChangeStart: (slides: any) => { this.slideChanged(); },
     };
+    */
 }

@@ -32,9 +32,16 @@ export class Config {
         let user: User = window.localStorage.getItem('user');
         if (user == undefined || user == null) {
             let userId: string = 'testId';
-            if (this.isOnAndroid) {userId = Device.device.uuid; }            
+            if (this.isOnAndroid) {
+                console.log('fetching device....');
+                var device = Device.device;
+                console.log(device);
+                console.log(device.uuid);
+                userId = device.uuid; 
+            }            
             let userOb = this.service.getUser(userId, this.language);
             userOb.subscribe(data => {
+                console.log(data);
                 this.user = data;
             });
             return userOb;
