@@ -20,7 +20,7 @@ export class Config {
     
     state: string = 'Active';
     globalTimer: number = 0;
-    isOnAndroid: boolean = false;
+    isOnAndroid: boolean = true;
     
     labels: Dictionary<string, string> = new Dictionary<string, string>();
     //#endregion global variables

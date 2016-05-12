@@ -116,10 +116,9 @@ export class NewsFeed {
         var options: Html2Canvas.Html2CanvasOptions = {
             logging: true,
             timeout: 0, // Use 0 for no timeout
-            useCORS: false,  // try to load images as CORS (where available), before falling back to proxy
-            allowTaint: false,
-            // proxy: 
             onrendered(canvas) {
+                var ctxt = canvas.getContext("2d");
+                ctxt.msImageSmoothingEnabled = false;
                 var myImage: string = canvas.toDataURL("image/png");
                 callback(myImage, parentThis);
             }

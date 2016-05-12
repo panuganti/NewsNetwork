@@ -54,7 +54,7 @@
 -->
     
     <ion-slides #slides [options]="options" >
-        <ion-slide *ngFor="#article of articles; #i = index">
+        <ion-slide *ngFor="#article of articles; #i = index" class="myslide">
             <ion-card>
                 <div (click)="openFullArticle($event,article.OriginalLink)">
                     <img width="100" height="100" src="{{article.ImageUrl}}">
@@ -92,6 +92,9 @@
 </ion-content>
 
 <style>
+    .myslide {
+        -webkit-font-smoothing : none !important;
+    }
     .social-cards ion-col {
         padding: 0;
     }
