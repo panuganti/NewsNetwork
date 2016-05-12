@@ -85,6 +85,11 @@ export interface Stream {
     backgroundImageUrl: string;
 }
 
+export interface UserSignupInfo {
+    UserId: string,
+    Language: string
+}
+
 export interface UserDeviceInfo {
     UserId: string;
     JSON: string;

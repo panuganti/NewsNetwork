@@ -4,6 +4,7 @@ import Dictionary = collections.Dictionary;
 import { Page, NavController, NavParams, Modal, Platform, Alert, Loading, Slides} from 'ionic-angular';
 import {Http, Headers} from 'angular2/http';
 import {ElementRef, ViewChild} from 'angular2/core';
+import {Contacts, SocialSharing} from 'ionic-native';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/retry';
@@ -13,12 +14,10 @@ import {PublishedPost, Stream, UserContactsInfo, UserContact} from '../../contra
 import {ConnectivityError} from '../ConnectivityError/ConnectivityError';
 import {UserSettings} from '../UserSettings/UserSettings';
 import {ContactsPage} from '../ContactsPage/ContactsPage';
-import {Contacts, SocialSharing} from 'ionic-native';
 import {Contact} from 'ionic-native/dist/plugins/contacts';
 
 import {FullArticle} from '../FullArticle/FullArticle';
 import {PostPage} from '../PostPage/PostPage';
-import {SignIn} from '../SignIn/SignIn';
 
 import {Categories} from '../Categories/Categories';
 import {Config} from '../../providers/config';
@@ -31,30 +30,6 @@ import {Notifications} from '../../providers/notifications';
 })
 
 export class NewsFeed {
-    connectionError: string = '';
-    userId: string = '';
-    isContactsLoaded: boolean = false;
-    skip: number = 0;
-    newsFeedError: string = '';
-    articles: PublishedPost[] = [];
-    homeBadgeNumber: number = 0;
-    notificationBadgeNumber: number = 0;
-    backgroundImageUrl: string = "url(\"resources/background.jpg\")";
-
-    @ViewChild('slides') swiper: Slides;
-
-    options: any = {
-        direction: "vertical",
-        effect: 'fade',
-        fade: {
-            crossFade: true
-        }, keyboardControl: true,
-        mousewheelControl: true,
-        onlyExternal: false,
-        onInit: (slides: any) => { this.swiper = slides; this.refresh(); },
-        onSlideChangeStart: (slides: any) => { this.slideChanged(); },
-    };
-
     constructor(public http: Http, public platform: Platform, public nav: NavController, public navParams: NavParams,
         public config: Config, public service: ServiceCaller, public notifications: Notifications) {
         this.init();
@@ -70,9 +45,8 @@ export class NewsFeed {
     }
 
     init() {
-        this.userId = this.config.userId;
         this.subscribeToNotifications();
-        this.loadContacts();
+        //this.loadContacts();
     }
 
 
@@ -86,11 +60,11 @@ export class NewsFeed {
 
     onPause(not: any) {
         console.log("pausing...");
-        not.startNotifications(this.userId);
+        not.startNotifications(this.config.user.Id);
     }
 
     onResume(not: any) {
-        not.stopNotifications(this.userId);
+        not.stopNotifications(this.config.user.Id);
     }
 
     //#endregion Notifications
@@ -103,9 +77,9 @@ export class NewsFeed {
         ping.subscribe(data => { setTimeout(this.checkConnectionToServer(), 10000); }, err => { this.nav.present(connectivityModal); });
     }
 
-    onPageWillEnter() {
-        this.onResume(this.notifications);
+    onPageDidEnter() {
         this.refresh();
+        //this.onResume(this.notifications);
     }
 
     createNewPost() {
@@ -115,7 +89,7 @@ export class NewsFeed {
     refresh() {
         this.newsFeedError = '';
         this.skip = 0;
-        this.swiper.slideTo(0, 100, true);
+        if (this.swiper.getSlider.length > 0) { this.swiper.slideTo(0, 100, true); }
         this.fetchArticles(this.skip);
     }
 
@@ -127,24 +101,14 @@ export class NewsFeed {
 
     fetchArticles(skip: number) {
         var loading = this.createLoading();
-        this.nav.present(loading);
-        this.service.getNewsFeed(this.userId, skip)
+        this.nav.present(loading); // TODO: Fix bug when used with OnPageWillEnter and OnPageDidEnter
+        this.service.getNewsFeed(this.config.user.Id, skip)
             .subscribe(posts => {
                 loading.dismiss();
                 this.update(posts, skip);
             },
             err => { loading.dismiss(); this.handleError(err) });
     }
-
-    /*
-    moreDataCanBeLoaded() {
-        return true;
-    }
-
-    loadMore($event: any) {
-        console.log("infile scroll to load more triggered");
-    }
-    */
 
     //#region Sharing
     takeScreenshot(element: HTMLElement, callback: any) {
@@ -245,7 +209,7 @@ export class NewsFeed {
             console.log("contacts already in local store");
         }
         else {
-            let contactsFromServer = this.service.fetchContacts(this.userId);
+            let contactsFromServer = this.service.fetchContacts(this.config.user.Id);
             contactsFromServer.subscribe(data => {
                 if (data.length == 0) {
                     console.log("remote contacts is empty");
@@ -286,7 +250,7 @@ export class NewsFeed {
             let jsonArray = JSON.stringify(contacts);
             window.localStorage['contacts'] = jsonArray;
             this.isContactsLoaded = true;
-            contactJson = { UserId: this.userId, JSON: jsonArray }
+            contactJson = { UserId: this.config.user.Id, JSON: jsonArray }
             let contactsUpload = this.service.uploadContactsList(JSON.stringify(contactJson));
             console.log("updating remote contacts");
             contactsUpload.subscribe(data => { console.log("contacts updated"); });
@@ -318,4 +282,27 @@ export class NewsFeed {
         this.nav.present(notificationsModal);
     }
     //#endregion Modals 
+    
+    connectionError: string = '';
+    isContactsLoaded: boolean = false;
+    skip: number = 0;
+    newsFeedError: string = '';
+    articles: PublishedPost[] = [];
+    homeBadgeNumber: number = 0;
+    notificationBadgeNumber: number = 0;
+    backgroundImageUrl: string = "url(\"resources/background.jpg\")";
+
+    @ViewChild('slides') swiper: Slides;
+
+    options: any = {
+        direction: "vertical",
+        effect: 'fade',
+        fade: {
+            crossFade: true
+        }, keyboardControl: true,
+        mousewheelControl: true,
+        onlyExternal: false,
+        onInit: (slides: any) => { this.swiper = slides; },
+        onSlideChangeStart: (slides: any) => { this.slideChanged(); },
+    };
 }

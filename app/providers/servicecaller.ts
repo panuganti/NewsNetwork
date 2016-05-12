@@ -9,13 +9,13 @@ import 'rxjs/add/observable/fromArray'; // required for Observable.of();
 import {Config} from './config';
 import {Cache} from './cache';
 import {Article, VersionInfo, ConfigData, CredentialsValidation} from '../contracts/DataContracts';
-import {PostPreview, UserNotification, UnpublishedPost, User, PublishedPost, UserContact, Stream} from '../contracts/ServerContracts';
+import {PostPreview, UserNotification, UnpublishedPost, User, PublishedPost, UserContact, Stream, UserSignupInfo} from '../contracts/ServerContracts';
 
 @Injectable()
 export class ServiceCaller {
     url: string = "https://script.google.com/macros/s/AKfycbz2ZMnHuSR4GmTjsuIo6cmh433RRpPRH7TwMaJhbAUr/dev";
-    apiUrl: string = "http://newsswipesserver20160101.azurewebsites.net";
-    //apiUrl: string = "http://localhost:54909";
+    //apiUrl: string = "http://newsswipesserver20160101.azurewebsites.net";
+    apiUrl: string = "http://localhost:54909";
 
     constructor(public cache: Cache, public http: Http) {
     }
@@ -71,6 +71,14 @@ export class ServiceCaller {
     //#region User
     updateUserInfo(user: User): Observable<boolean> {
         return this.postRequest<boolean>("/user/UpdateUserProfile", JSON.stringify(user));
+    }
+
+    getUser(userId: string, lang: string) : Observable<User> {
+        let user: UserSignupInfo = {
+            UserId: userId,
+            Language: lang
+        }
+        return this.postRequest<User>("/user/GetUser", JSON.stringify(user));
     }
 
     getUserInfo(userId: string): Observable<User> {

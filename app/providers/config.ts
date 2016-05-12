@@ -1,9 +1,13 @@
 /// <reference path="../../typings/tsd.d.ts" />
 import Dictionary = collections.Dictionary;
 
+import {Device} from 'ionic-native';
 import {Injectable} from 'angular2/core';
 import {User, Stream} from '../contracts/ServerContracts';
 import {ServiceCaller} from './servicecaller';
+
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/fromArray'; // required for Observable.of();
 
 
 @Injectable()
@@ -11,7 +15,6 @@ export class Config {
     version = "0.0.1";
     
     //#region global variables
-    userId: string = '';
     language: string = 'Hindi';
     user: User = null;
     
@@ -23,12 +26,25 @@ export class Config {
     //#endregion global variables
         
     constructor(public service: ServiceCaller) {
-        this.setInitialLabels();
     }   
-    
-    setUserInfo(user: User) {
-        this.userId = user.Id;
-        this.user = user;
+
+    setUser(): Observable<User> {
+        let user: User = window.localStorage.getItem('user');
+        if (user == undefined || user == null) {
+            let userId: string = 'testId';
+            if (this.isOnAndroid) {userId = Device.device.uuid; }            
+            let userOb = this.service.getUser(userId, this.language);
+            userOb.subscribe(data => {
+                this.user = data;
+            });
+            return userOb;
+        }
+        else {
+            this.user = user;
+                console.log(this.user.Id);
+                console.log(this.user.CanPost);
+            return Observable.of(user);
+        }
     }
     
     setStateToActive() {
@@ -60,10 +76,6 @@ export class Config {
         
     setInitialLabels() {
         this.labels = new Dictionary<string, string>();
-        this.labels.setValue('Email', 'Email');
-        this.labels.setValue('Password', 'Password');
-        this.labels.setValue('Login','Login');
-        this.labels.setValue('SignUp', 'SignUp');
     }
     
     getLabel(label: string) {

@@ -10,8 +10,6 @@ import {Stream} from '../../contracts/ServerContracts';
 import {Config} from '../../providers/config';
 import {ServiceCaller} from '../../providers/servicecaller';
 
-import {SignIn} from '../SignIn/SignIn';
-
 @Page({
     templateUrl: 'build/pages/Categories/Categories.html'
 })
@@ -35,11 +33,7 @@ export class Categories {
     }
 
     onPageWillEnter() {
-        this.userId = this.config.userId; 
-        if (this.userId == undefined || this.userId.length == 0) {
-            this.nav.push(SignIn); // TODO: Change this to setting root
-        }         
-
+        this.userId = this.config.user.Id; 
         let userStreams = this.service.getStreams(this.userId);
         userStreams.subscribe(data => { this.streams = data; 
         })

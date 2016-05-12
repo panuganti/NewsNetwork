@@ -14,11 +14,10 @@ export class Cache {
     MAX_CACHE_SIZE: number = 1000;
     langArticleCache: Dictionary<string, Article[]>;
     labelsCache: Dictionary<string, string> = new Dictionary<string, string>();
-    articleCache: Dictionary<string, Article[]>;
+    articleCache: Dictionary<string, Article[]> = new Dictionary<string, Article[]>();
     contacts: Contact[] = [];
 
     constructor() {
-       this.langArticleCache = new Dictionary<string, Article[]>();
     }
 
     //#region Labels Cache

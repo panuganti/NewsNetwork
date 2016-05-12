@@ -16,61 +16,23 @@ import 'rxjs/add/operator/retry';
 })
 
 export class PostPage {
-    userId: string = '';
-    canPost: boolean = true;
-    isAdmin: boolean = false;
-    
-    state: string = "NoPreview";
-    backgroundImageUrl: string = "url(\"resources/background.jpg\")";
-    url: string;
-    candidateImageUrl: string;
-    imageUrl: string;
-    imageCounter: number = -1;
-    dbImageCounter: number = -1;
-    tags: string;
-    streams: string[];
-    postPreview: PostPreview;
-    emptyPreview: PostPreview;
-    language: string;
-    postSource: string;
-    feedStream: string;
-    defaultText = 'Write Text Here ..';
-    goodImageExists: boolean = false;
-    loading: Loading = Loading.create(
-            {
-                content: 'Loading.. Please wait',
-                dismissOnPageChange: true,
-                duration: 500
-            }
-        );;
-
-
-    public swiper: any;
-    options: any = {
-        keyboardControl: true,
-        mousewheelControl: true,
-        onlyExternal: false,
-        onInit: (slides: any) => {this.swiper = slides; },
-        onSlideChangeStart: (slides: any) => { this.loadNextImage()},
-        onSlideNextStart: (swiper) => { this.loadNextImage()},
-        onSlidePrevStart: (swiper) => {  this.loadPrevImage()}
-    };
-
-    toggleHeadingEditing: boolean = false;
-    toggleSnippetEditing: boolean = false;
-    toggleImage: boolean = true;
-
     constructor(public nav: NavController, public config: Config, public service: ServiceCaller) {
         this.init();
     }
 
     init() {
-        this.userId = JSON.parse(window.localStorage['userId']); 
-        if (this.userId == undefined || this.userId.length == 0) {
-            this.nav.pop(); 
-        }         
-        let user = this.service.getUserInfo(this.userId);
-        user.subscribe(data => { this.canPost = data.CanPost; this.isAdmin = data.CanPost});
+        this.canPost = this.config.user.CanPost; 
+        this.isAdmin = this.config.user.CanPost;
+    }
+
+    createLoading(): Loading {
+        return Loading.create(
+            {
+                content: 'Loading.. Please wait',
+                dismissOnPageChange: true,
+                duration: 500
+            }
+        );
     }
 
     editImageUrl() { this.toggleImage = !this.toggleImage; }
@@ -88,7 +50,9 @@ export class PostPage {
      }
     
     publish(skip: boolean) {
-        this.nav.present(this.loading);
+        var loading = this.createLoading();
+        this.nav.present(loading);
+        
         let streams: string[] = [];
         let tags: string[] = [];
         if(this.tags != undefined && this.tags != null && this.tags.length > 0) 
@@ -107,7 +71,7 @@ export class PostPage {
             Image: imageEntity,
             Streams: streams,
             Language: this.feedStream,
-            PostedBy: this.config.userId,
+            PostedBy: this.config.user.Id,
             Tags: [],
             Date: "",
             ShouldSkip: skip
@@ -117,7 +81,6 @@ export class PostPage {
     }
     
     reset() {
-        this.loading.dismiss();
         this.state = "NoPreview";
         this.postSource = null;
         this.postPreview = this.emptyPreview;
@@ -131,7 +94,8 @@ export class PostPage {
     }
 
     loadArticle(postSource: string) {
-        this.nav.present(this.loading);
+        var loading = this.createLoading();
+        this.nav.present(loading);
         this.postSource = postSource;
         var articleData;
         if (postSource == 'url') {
@@ -140,11 +104,10 @@ export class PostPage {
         else if (postSource == 'feeds') {
             articleData = this.service.fetchFromFeeds(this.feedStream);
         }
-        articleData.subscribe(data => { this.postPreview = data; this.prepareForEditing();});
+        articleData.subscribe(data => { loading.dismiss(); this.postPreview = data; this.prepareForEditing();});
     }
     
     prepareForEditing() {
-        this.loading.dismiss();
         this.state = 'Preview'; this.imageCounter = -1; this.loadNextImage(); 
         if (this.postPreview.Snippet == '') {this.postPreview.Snippet = this.defaultText;}
     }
@@ -203,4 +166,41 @@ export class PostPage {
     sendInvitations() {
         this.nav.push(ContactsPage);
     }
+    
+    canPost: boolean = true;
+    isAdmin: boolean = false;
+    
+    state: string = "NoPreview";
+    backgroundImageUrl: string = "url(\"resources/background.jpg\")";
+    url: string;
+    candidateImageUrl: string;
+    imageUrl: string;
+    imageCounter: number = -1;
+    dbImageCounter: number = -1;
+    tags: string;
+    streams: string[];
+    postPreview: PostPreview;
+    emptyPreview: PostPreview;
+    language: string;
+    postSource: string;
+    feedStream: string;
+    defaultText = 'Write Text Here ..';
+    goodImageExists: boolean = false;
+
+
+    public swiper: any;
+    options: any = {
+        keyboardControl: true,
+        mousewheelControl: true,
+        onlyExternal: false,
+        onInit: (slides: any) => {this.swiper = slides; },
+        onSlideChangeStart: (slides: any) => { this.loadNextImage()},
+        onSlideNextStart: (swiper) => { this.loadNextImage()},
+        onSlidePrevStart: (swiper) => {  this.loadPrevImage()}
+    };
+
+    toggleHeadingEditing: boolean = false;
+    toggleSnippetEditing: boolean = false;
+    toggleImage: boolean = true;
+
 }

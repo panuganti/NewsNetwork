@@ -1,7 +1,6 @@
 import {Page, NavController, ViewController} from 'ionic-angular';
 import {Config} from '../../providers/config';
 import {PostPage} from '../PostPage/PostPage';
-import {SignIn} from '../SignIn/SignIn';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/retry';
 import {Type} from 'angular2/core';
@@ -21,8 +20,7 @@ export class UserSettings {
     }    
     
     signOut() {
-        window.localStorage.removeItem('userId');
-        this.rootPage = SignIn;
+        window.localStorage.removeItem('user');
     }
     
     saveAndGoBack() {
