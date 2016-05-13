@@ -20,7 +20,7 @@ export class Config {
     
     state: string = 'Active';
     globalTimer: number = 0;
-    isOnAndroid: boolean = true;
+    isOnAndroid: boolean = false;
     
     labels: Dictionary<string, string> = new Dictionary<string, string>();
     //#endregion global variables
@@ -35,13 +35,10 @@ export class Config {
             if (this.isOnAndroid) {
                 console.log('fetching device....');
                 var device = Device.device;
-                console.log(device);
-                console.log(device.uuid);
                 userId = device.uuid; 
             }            
             let userOb = this.service.getUser(userId, this.language);
             userOb.subscribe(data => {
-                console.log(data);
                 this.user = data;
             });
             return userOb;

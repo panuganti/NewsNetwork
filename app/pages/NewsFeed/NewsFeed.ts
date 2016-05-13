@@ -31,6 +31,7 @@ import {Notifications} from '../../providers/notifications';
 
 export class NewsFeed {
     @ViewChild(Content) content: Content;
+    @ViewChild(List) list: List;
     
     constructor(public http: Http, public platform: Platform, public nav: NavController, public navParams: NavParams,
         public config: Config, public service: ServiceCaller, public notifications: Notifications) {
@@ -49,6 +50,7 @@ export class NewsFeed {
 
     init() {
         this.subscribeToNotifications();
+        this.refresh();
         //this.loadContacts();
     }
 
@@ -72,20 +74,20 @@ export class NewsFeed {
 
     //#endregion Notifications
 
-    moreDataCanBeLoaded() {
-        console.log('..more data');
+    moreDataCanBeLoaded(): boolean {
         return true;
     }
-    
-    loadMore(event:any) {
-        console.log('loading more..');
-        this.articles = this.articles.slice();
+
+    doInfinite(infiniteScroll) {
+        console.log('fetching more posts..');
+            let newPosts = this.service.getNewsFeed(this.config.user.Id, this.skip);
+            newPosts.subscribe(posts => { infiniteScroll.complete();  this.update(posts, this.skip); });
     }
 
     refresher() {
-        console.log('refesher..');    
+        console.log('refesher..');
     }
-    
+
     checkConnectionToServer() {
         var connectivityModal = Modal.create(ConnectivityError);
         connectivityModal.onDismiss(data => { setTimeout(this.checkConnectionToServer(), 10000); })
@@ -95,8 +97,8 @@ export class NewsFeed {
     }
 
     onPageDidEnter() {
-        this.refresh();
-        //this.onResume(this.notifications);
+        //this.refresh();
+        this.onResume(this.notifications);
     }
 
     createNewPost() {
@@ -105,9 +107,8 @@ export class NewsFeed {
 
     refresh() {
         this.newsFeedError = '';
+        if (this.skip > 0) {this.content.scrollToTop();}
         this.skip = 0;
-        this.content.scrollToTop();
-//        if (this.swiper.getSlider.length > 0) { this.swiper.slideTo(0, 100, true); }
         this.fetchArticles(this.skip);
     }
 
@@ -123,16 +124,17 @@ export class NewsFeed {
         this.service.getNewsFeed(this.config.user.Id, skip)
             .subscribe(posts => {
                 loading.dismiss();
-                console.log('loading dismissed..');
-                console.log(posts.length);
                 this.update(posts, skip);
             },
-            err => { loading.dismiss();                 
-                        console.log('loading dismissed..');
-                        this.handleError(err) });
+            err => {
+                loading.dismiss();
+                console.log('error..');
+                this.handleError(err)
+            });
     }
 
     //#region Sharing
+    /*
     takeScreenshot(element: HTMLElement, callback: any) {
         var parentThis = this;
         var options: Html2Canvas.Html2CanvasOptions = {
@@ -147,14 +149,17 @@ export class NewsFeed {
         };
         html2canvas(element, options);
     }
+    */
 
-    shareScreenshot() {
-//        let index = this.swiper.getActiveIndex();
-  //      var element: HTMLElement = this.swiper.getSlider().slides[index];
- //       this.takeScreenshot(element, this.shareImage);
+    shareScreenshot(id: string) {
+        let parentThis = this;
+        let imageUrl = this.service.renderHtml(id);
+        console.log('sharing screenshot..');
+        imageUrl.subscribe(data => this.shareImage(data, parentThis));
     }
 
     shareImage(imageUrl: any, parentThis: any) {
+        console.log('opening image..');
         parentThis.platform.ready().then(() => {
             window.open(imageUrl);
             //SocialSharing.share("Shared from NewsNetwork", null, imageUrl);
@@ -173,13 +178,11 @@ export class NewsFeed {
 
 
     update(art: PublishedPost[], skip: number) {
-        console.log('updating posts');
+        console.log('updating..');
         if (skip == 0) {
             this.articles = art.slice();
-            console.log(this.articles);
         } else {
-            this.articles.concat(art.slice()); // TODO: Test
-            console.log(this.articles.length);
+            this.articles = this.articles.concat(art.slice()); // TODO: Test
         }
         this.skip = this.articles.length;
     }
@@ -191,33 +194,24 @@ export class NewsFeed {
     //#endregion Utils
 
     //#region User Reaction
-    /*
-    slideChanged() {
-        let slideNo = this.swiper.getActiveIndex();
-        let totalSlides = this.articles.length;
-        if (totalSlides > 0 && totalSlides - slideNo < 5) {
-            this.fetchArticles(this.skip);
-            // fetch next set of articles
-        }
-    }*/
 
-    addLike(article: PublishedPost, userId: string) {
-        var likes = this.service.sendUserReaction(article.Id, userId, 'Like');
+    addLike(article: PublishedPost) {
+        var likes = this.service.sendUserReaction(article.Id, this.config.user.Id, 'Like');
         likes.subscribe(data => { article.LikedBy = data; });
     }
 
-    removeLike(article: PublishedPost, userId: string) {
-        var likes = this.service.sendUserReaction(article.Id, userId, 'UnLike');
+    removeLike(article: PublishedPost) {
+        var likes = this.service.sendUserReaction(article.Id, this.config.user.Id, 'UnLike');
         likes.subscribe(data => { article.LikedBy = data; });
     }
 
-    reTweet(article: PublishedPost, userId: string) {
-        var shares = this.service.sendUserReaction(article.Id, userId, 'ReTweet');
+    reTweet(article: PublishedPost) {
+        var shares = this.service.sendUserReaction(article.Id, this.config.user.Id, 'ReTweet');
         shares.subscribe(data => { article.SharedBy = data; });
     }
 
-    undoReTweet(article: PublishedPost, userId: string) {
-        var shares = this.service.sendUserReaction(article.Id, userId, 'UnReTweet');
+    undoReTweet(article: PublishedPost) {
+        var shares = this.service.sendUserReaction(article.Id, this.config.user.Id, 'UnReTweet');
         shares.subscribe(data => { article.SharedBy = data; });
     }
     //#endregion User Reaction
@@ -307,7 +301,7 @@ export class NewsFeed {
         this.nav.present(notificationsModal);
     }
     //#endregion Modals 
-    
+
     connectionError: string = '';
     isContactsLoaded: boolean = false;
     skip: number = 0;
@@ -317,19 +311,19 @@ export class NewsFeed {
     notificationBadgeNumber: number = 0;
     backgroundImageUrl: string = "url(\"resources/background.jpg\")";
 
-//    @ViewChild('slides') swiper: Slides;
+    //    @ViewChild('slides') swiper: Slides;
 
-/*
-    options: any = {
-        direction: "vertical",
-        effect: 'slide',
-        fade: {
-            crossFade: true
-        }, keyboardControl: true,
-        mousewheelControl: true,
-        onlyExternal: false,
-        onInit: (slides: any) => { this.swiper = slides; },
-        onSlideChangeStart: (slides: any) => { this.slideChanged(); },
-    };
-    */
+    /*
+        options: any = {
+            direction: "vertical",
+            effect: 'slide',
+            fade: {
+                crossFade: true
+            }, keyboardControl: true,
+            mousewheelControl: true,
+            onlyExternal: false,
+            onInit: (slides: any) => { this.swiper = slides; },
+            onSlideChangeStart: (slides: any) => { this.slideChanged(); },
+        };
+        */
 }

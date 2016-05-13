@@ -14,8 +14,8 @@ import {PostPreview, UserNotification, UnpublishedPost, User, PublishedPost, Use
 @Injectable()
 export class ServiceCaller {
     url: string = "https://script.google.com/macros/s/AKfycbz2ZMnHuSR4GmTjsuIo6cmh433RRpPRH7TwMaJhbAUr/dev";
-    apiUrl: string = "http://newsswipesserver20160101.azurewebsites.net";
-    //apiUrl: string = "http://localhost:54909";
+    //apiUrl: string = "http://newsswipesserver20160101.azurewebsites.net";
+    apiUrl: string = "http://localhost:54909";
 
     constructor(public cache: Cache, public http: Http) {
     }
@@ -173,6 +173,10 @@ export class ServiceCaller {
         return this.postRequest<boolean>("/user/UpdateUserGeoInfo", geoInfo);
     }    
     //#endregion Upload UserInfo
+    
+    renderHtml(element:HTMLElement) : Observable<string> {
+        return this.postRequest<string>("/feed/RenderHtml", JSON.stringify(element));
+    }
     
     //#region private methods
     getRequest<T>(route: string, request: string, retryCount: number = 0) : Observable<T> {
